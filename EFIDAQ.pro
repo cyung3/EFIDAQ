@@ -13,8 +13,13 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        efidaq.cpp
+        efidaq.cpp \
+    testsetup.cpp \
+    tmodels.cpp
 
-HEADERS  += efidaq.h
+HEADERS  += efidaq.h \
+    testsetup.h \
+    tmodels.h
 
-FORMS    += efidaq.ui
+FORMS    += efidaq.ui \
+    testsetup.ui
