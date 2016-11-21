@@ -6,7 +6,9 @@
 namespace Ui {
 class EFIDAQ;
 }
+
 class TESTSETUP;
+class RUNTEST;
 
 class EFIDAQ : public QMainWindow
 {
@@ -17,11 +19,14 @@ public:
     ~EFIDAQ();
 
 private slots:
-    void on_pushButton_clicked();
+    void on_SetupButton_clicked();
+
+    void on_RunTestButton_clicked();
 
 private:
     Ui::EFIDAQ* ui;
     TESTSETUP* ts;
+    RUNTEST* rt;
 };
 
 #endif // EFIDAQ_H

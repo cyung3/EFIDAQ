@@ -15,11 +15,19 @@ TEMPLATE = app
 SOURCES += main.cpp\
         efidaq.cpp \
     testsetup.cpp \
-    tmodels.cpp
+    tmodels.cpp \
+    runtest.cpp \
+    utilities.cpp
 
 HEADERS  += efidaq.h \
     testsetup.h \
-    tmodels.h
+    tmodels.h \
+    runtest.h \
+    utilities.h
 
 FORMS    += efidaq.ui \
-    testsetup.ui
+    testsetup.ui \
+    runtest.ui
+
+RESOURCES += \
+    efidaq.qrc

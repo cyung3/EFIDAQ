@@ -14,7 +14,7 @@
    <string>EFIDAQ</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="SetupButton">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -27,7 +27,7 @@
      <string>Test Setup</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="RunTestButton">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -40,7 +40,7 @@
      <string>Run Test</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_3">
+   <widget class="QPushButton" name="RunDiagnosticsButton">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -60,7 +60,7 @@
      <x>0</x>
      <y>0</y>
      <width>305</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

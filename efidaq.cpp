@@ -1,6 +1,7 @@
 #include "efidaq.h"
 #include "ui_efidaq.h"
 #include "testsetup.h"
+#include "runtest.h"
 
 EFIDAQ::EFIDAQ(QWidget *parent) :
     QMainWindow(parent),
@@ -20,7 +21,7 @@ EFIDAQ::~EFIDAQ()
     delete ui;
 }
 
-void EFIDAQ::on_pushButton_clicked()
+void EFIDAQ::on_SetupButton_clicked()
 {
     // Do not need to worry about cleaning this up when the window is closed if
     // the function "this->setAttribute(Qt::WA_DeleteOnClose)" is called in the
@@ -31,4 +32,10 @@ void EFIDAQ::on_pushButton_clicked()
 
     // Makes the newly created window visible to the user.
     ts->show();
+}
+
+void EFIDAQ::on_RunTestButton_clicked()
+{
+    rt = new RUNTEST();
+    rt->show();
 }

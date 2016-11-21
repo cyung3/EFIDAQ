@@ -79,7 +79,7 @@
     <item row="1" column="0">
      <widget class="QLabel" name="label_6">
       <property name="text">
-       <string>TextLabel</string>
+       <string>Sample Rate</string>
       </property>
      </widget>
     </item>

@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>AFR_TABLE.csv</file>
+        <file>LABEL_LIST.csv</file>
+        <file>INPUT_DATA.csv</file>
+    </qresource>
+</RCC>
