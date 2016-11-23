@@ -29,7 +29,7 @@ RUNTEST::RUNTEST(QWidget *parent) :
     // This is actually the maximum sample rate speed using the current method.
     // We will need more advanced programming to get the sample rate higher than
     // 40 samples per second.
-    ui->sampleRateSlider->setMaximum(40);
+    ui->sampleRateSlider->setMaximum(1000);
     ui->sampleRateSlider->setMinimum(1);
 
     // Sets precision on slider.
@@ -49,11 +49,6 @@ RUNTEST::RUNTEST(QWidget *parent) :
     // Connects the timer's "timeout()" signal to the specified slot, which is
     // a function of the RUNTEST class.
     connect(m_dataRefrTimer, SIGNAL(timeout()), this, SLOT(hitDataTimer()));
-
-    // Starts the timer.
-    // Need to change this to only start when the start data collection button is clicked.
-    m_dataRefrTimer->start();
-
 }
 
 // Destructor for the RUNTEST class
@@ -117,4 +112,30 @@ void RUNTEST::on_sampleRateEdit_editingFinished()
         // Update the timer interval to match the new value.
         m_dataRefrTimer->setInterval( (int) ((((double)1/value)) * 1000));
     }
+}
+
+void RUNTEST::on_StartDCButton_clicked()
+{
+    // Starts the timer.
+    if (!m_dataRefrTimer->isActive())
+    {
+        m_dataRefrTimer->start();
+    }
+
+    // Need to make the button become unclickable at this point
+
+    // Needs to make sure the end data collection button is activated
+}
+
+void RUNTEST::on_EndDCButton_clicked()
+{
+    // Stops the timer
+    if (m_dataRefrTimer->isActive())
+    {
+        m_dataRefrTimer->stop();
+    }
+
+    // Need to make this button become unactive at this point
+
+    // Need to make the start data collection button become active. Maybe change the text to "continue data collection" too?
 }

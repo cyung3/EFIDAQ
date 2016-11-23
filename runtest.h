@@ -24,6 +24,10 @@ private slots:
 
     void on_sampleRateEdit_editingFinished();
 
+    void on_StartDCButton_clicked();
+
+    void on_EndDCButton_clicked();
+
 private:
     Ui::RUNTEST *ui;
     LIST_CHOICES_MODEL* m_xlmodel;
