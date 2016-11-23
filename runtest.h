@@ -28,12 +28,20 @@ private slots:
 
     void on_EndDCButton_clicked();
 
+    void on_OpenAFRTableButton_clicked();
+
+    void on_PlotDataButton_clicked();
+
 private:
+    void addData(int xData, int yData);
+
     Ui::RUNTEST *ui;
     LIST_CHOICES_MODEL* m_xlmodel;
     LIST_CHOICES_MODEL* m_ylmodel;
     QTimer* m_dataRefrTimer;
     long long m_ndp;
+    bool m_isplotting;
+    //QCustomPlot* m_chart;
 };
 
 #endif // RUNTEST_H

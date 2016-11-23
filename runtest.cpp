@@ -13,6 +13,7 @@ RUNTEST::RUNTEST(QWidget *parent) :
     this->setAttribute(Qt::WA_DeleteOnClose, true);
 
     m_ndp = 0;
+    m_isplotting = false;
 
     // Sets the xlistView to the LIST_CHOICES_MODEL.
     m_xlmodel = new LIST_CHOICES_MODEL(this);
@@ -83,6 +84,17 @@ void RUNTEST::hitDataTimer()
 
     // For now, works like this.
     m_ndp++;
+
+    // Update the LCD with the total sampe number
+
+    int xData = 0;
+    int yData = 0;
+
+    // Update charts
+    if (m_isplotting)
+    {
+        addData(xData, yData);
+    }
 }
 
 // Activates whenever the sampleRateSlider is moved.
@@ -138,4 +150,20 @@ void RUNTEST::on_EndDCButton_clicked()
     // Need to make this button become unactive at this point
 
     // Need to make the start data collection button become active. Maybe change the text to "continue data collection" too?
+}
+
+void RUNTEST::on_OpenAFRTableButton_clicked()
+{
+
+}
+
+void RUNTEST::addData(int xData, int yData)
+{
+
+}
+
+void RUNTEST::on_PlotDataButton_clicked()
+{
+    m_isplotting = true;
+    //m_chart = new QCustomPlot;
 }
