@@ -8,11 +8,16 @@ RUNTEST::RUNTEST(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::RUNTEST)
 {
+    // Sets up the window to look like its ".ui" file.
     ui->setupUi(this);
 
+    // Set the window to automatically call the destructor when closed.
     this->setAttribute(Qt::WA_DeleteOnClose, true);
 
+    // Initialize the number of data points collected as 0.
     m_ndp = 0;
+
+    // Initialize as not plotting
     m_isplotting = false;
 
     // Sets the xlistView to the LIST_CHOICES_MODEL.
@@ -50,6 +55,9 @@ RUNTEST::RUNTEST(QWidget *parent) :
     // Connects the timer's "timeout()" signal to the specified slot, which is
     // a function of the RUNTEST class.
     connect(m_dataRefrTimer, SIGNAL(timeout()), this, SLOT(hitDataTimer()));
+
+    // Initialize the End Data Collection Button as disable
+    ui->EndDCButton->setDisabled(true);
 }
 
 // Destructor for the RUNTEST class
@@ -80,12 +88,13 @@ void RUNTEST::hitDataTimer()
 
     // The following commented out statement is how text would be appended
     // to the end of the databrowser.
-    ui->DataBrowser->append(QString("Data Point: %1").arg(m_ndp));
+    //ui->DataBrowser->append(QString("Data Point: %1").arg(m_ndp));
 
     // For now, works like this.
     m_ndp++;
 
     // Update the LCD with the total sampe number
+    ui->NumDPlcd->display((int) m_ndp);
 
     int xData = 0;
     int yData = 0;
@@ -101,7 +110,7 @@ void RUNTEST::hitDataTimer()
 void RUNTEST::on_sampleRateSlider_sliderMoved(int position)
 {
     // Displays the slider position in the DataBrowser.
-    ui->DataBrowser->append(QString("Slider position: %1").arg(position));
+    //ui->DataBrowser->append(QString("Slider position: %1").arg(position));
 
     // Update the sampleRateEdit to the slider value
     ui->sampleRateEdit->setText(QString("%1").arg(position));
@@ -126,6 +135,7 @@ void RUNTEST::on_sampleRateEdit_editingFinished()
     }
 }
 
+// Activates whenever the Start Data Collection Button is clicked.
 void RUNTEST::on_StartDCButton_clicked()
 {
     // Starts the timer.
@@ -135,10 +145,13 @@ void RUNTEST::on_StartDCButton_clicked()
     }
 
     // Need to make the button become unclickable at this point
+    ui->StartDCButton->setDisabled(true);
 
     // Needs to make sure the end data collection button is activated
+    ui->EndDCButton->setDisabled(false);
 }
 
+// Activates whenever the End Data Collection Button is clicked.
 void RUNTEST::on_EndDCButton_clicked()
 {
     // Stops the timer
@@ -148,10 +161,14 @@ void RUNTEST::on_EndDCButton_clicked()
     }
 
     // Need to make this button become unactive at this point
+    ui->EndDCButton->setDisabled(true);
 
-    // Need to make the start data collection button become active. Maybe change the text to "continue data collection" too?
+    // Need to make the start data collection button become active. Also changes the text to "resume data collection."
+    ui->StartDCButton->setDisabled(false);
+    ui->StartDCButton->setText(QString("Resume Data Collection"));
 }
 
+// Activates whenever the Open AFR Table button is clicked.
 void RUNTEST::on_OpenAFRTableButton_clicked()
 {
 
@@ -162,6 +179,7 @@ void RUNTEST::addData(int xData, int yData)
 
 }
 
+// Activates whenever the Plot Data button is clicked.
 void RUNTEST::on_PlotDataButton_clicked()
 {
     m_isplotting = true;

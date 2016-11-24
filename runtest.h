@@ -38,8 +38,10 @@ private:
     Ui::RUNTEST *ui;
     LIST_CHOICES_MODEL* m_xlmodel;
     LIST_CHOICES_MODEL* m_ylmodel;
+
     QTimer* m_dataRefrTimer;
     long long m_ndp;
+
     bool m_isplotting;
     //QCustomPlot* m_chart;
 };
