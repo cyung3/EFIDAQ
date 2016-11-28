@@ -17,17 +17,22 @@ SOURCES += main.cpp\
     testsetup.cpp \
     tmodels.cpp \
     runtest.cpp \
-    utilities.cpp
+    utilities.cpp \
+    qcustomplot.cpp \
+    plotting.cpp
 
 HEADERS  += efidaq.h \
     testsetup.h \
     tmodels.h \
     runtest.h \
-    utilities.h
+    utilities.h \
+    qcustomplot.h \
+    plotting.h
 
 FORMS    += efidaq.ui \
     testsetup.ui \
-    runtest.ui
+    runtest.ui \
+    plotting.ui
 
 RESOURCES += \
     efidaq.qrc

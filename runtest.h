@@ -8,6 +8,8 @@ namespace Ui {
 class RUNTEST;
 }
 
+class PLOTTING;
+
 class RUNTEST : public QWidget
 {
     Q_OBJECT
@@ -41,7 +43,7 @@ private:
 
     QTimer* m_dataRefrTimer;
     long long m_ndp;
-
+    PLOTTING* plot;
     bool m_isplotting;
     //QCustomPlot* m_chart;
 };

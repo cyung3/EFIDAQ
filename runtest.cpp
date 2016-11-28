@@ -1,5 +1,6 @@
 #include "runtest.h"
 #include "ui_runtest.h"
+#include "plotting.h"
 #include <QMessageBox>
 #include "tmodels.h"
 #include <QTimer>
@@ -58,6 +59,7 @@ RUNTEST::RUNTEST(QWidget *parent) :
 
     // Initialize the End Data Collection Button as disable
     ui->EndDCButton->setDisabled(true);
+    plot = nullptr;
 }
 
 // Destructor for the RUNTEST class
@@ -183,5 +185,6 @@ void RUNTEST::addData(int xData, int yData)
 void RUNTEST::on_PlotDataButton_clicked()
 {
     m_isplotting = true;
-    //m_chart = new QCustomPlot;
+    plot= new PLOTTING();
+    plot->show();
 }
