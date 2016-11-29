@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = EFIDAQ
 TEMPLATE = app
@@ -19,7 +19,7 @@ SOURCES += main.cpp\
     runtest.cpp \
     utilities.cpp \
     qcustomplot.cpp \
-    plotting.cpp
+    mainwindow.cpp
 
 HEADERS  += efidaq.h \
     testsetup.h \
@@ -27,12 +27,12 @@ HEADERS  += efidaq.h \
     runtest.h \
     utilities.h \
     qcustomplot.h \
-    plotting.h
+    mainwindow.h
 
 FORMS    += efidaq.ui \
     testsetup.ui \
     runtest.ui \
-    plotting.ui
+    mainwindow.ui
 
 RESOURCES += \
     efidaq.qrc
