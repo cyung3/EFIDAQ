@@ -64,7 +64,6 @@ public:
    void addData(int x, int y);
   
 private slots:
-  void realtimeDataSlot();
   
 private:
   Ui::MainWindow *ui;
