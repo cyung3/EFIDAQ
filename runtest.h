@@ -9,6 +9,7 @@ class RUNTEST;
 }
 
 class MainWindow;
+class SERIALREADER;
 
 class RUNTEST : public QWidget
 {
@@ -34,6 +35,8 @@ private slots:
 
     void on_PlotDataButton_clicked();
 
+    void on_setSerialPortButton_clicked();
+
 private:
     void addData(int xData, int yData);
 
@@ -44,6 +47,8 @@ private:
     QTimer* m_dataRefrTimer;
     long long m_ndp;
     MainWindow* mw;
+    SERIALREADER* m_serialReader;
+
     bool m_isplotting;
     //QCustomPlot* m_chart;
 };

@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT       += serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
@@ -19,7 +20,8 @@ SOURCES += main.cpp\
     runtest.cpp \
     utilities.cpp \
     qcustomplot.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    serialreader.cpp
 
 HEADERS  += efidaq.h \
     testsetup.h \
@@ -27,7 +29,8 @@ HEADERS  += efidaq.h \
     runtest.h \
     utilities.h \
     qcustomplot.h \
-    mainwindow.h
+    mainwindow.h \
+    serialreader.h
 
 FORMS    += efidaq.ui \
     testsetup.ui \

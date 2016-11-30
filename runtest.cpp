@@ -1,5 +1,6 @@
 #include "runtest.h"
 #include "ui_runtest.h"
+#include "serialreader.h"
 #include <QMessageBox>
 #include "tmodels.h"
 #include "mainwindow.h"
@@ -59,6 +60,10 @@ RUNTEST::RUNTEST(QWidget *parent) :
 
     // Initialize the End Data Collection Button as disable
     ui->EndDCButton->setDisabled(true);
+
+    // Initialize serial reader for taking in data
+    m_serialReader = new SERIALREADER(this);
+    ui->serialPortNameLabel->setText(m_serialReader->portName());
 }
 
 // Destructor for the RUNTEST class
@@ -90,6 +95,23 @@ void RUNTEST::hitDataTimer()
     // The following commented out statement is how text would be appended
     // to the end of the databrowser.
     //ui->DataBrowser->append(QString("Data Point: %1").arg(m_ndp));
+
+    // Not sure if there will be issues here if the serialreader happens to be
+    // recording bytes while this code is run. Will need to look into further.
+    // Possibly will require some sort of protocols to define the beginning and
+    // ends of information.
+    QByteArray data;
+    unsigned long long nBytes = m_serialReader->availableData(data);
+
+    // Check to see if any bytes were recorded
+    if (nBytes <= 0)
+    {
+        // If no bytes are available, then just return because there is no work to be done.
+        return;
+    }
+
+    // Just to see what it looks like when the byte array is simply appended as a string.
+    ui->DataBrowser->append(QString(data));
 
     // For now, works like this.
     m_ndp++;
@@ -139,34 +161,53 @@ void RUNTEST::on_sampleRateEdit_editingFinished()
 // Activates whenever the Start Data Collection Button is clicked.
 void RUNTEST::on_StartDCButton_clicked()
 {
-    // Starts the timer.
-    if (!m_dataRefrTimer->isActive())
+    // Attempt to open the serial connection
+    if (m_serialReader->open(QIODevice::ReadOnly))
     {
-        m_dataRefrTimer->start();
+        // Starts the timer.
+        if (!m_dataRefrTimer->isActive())
+        {
+            m_dataRefrTimer->start();
+        }
+
+        // Need to make the button become unclickable at this point
+        ui->StartDCButton->setDisabled(true);
+
+        // Needs to make sure the end data collection button is activated
+        ui->EndDCButton->setDisabled(false);
     }
-
-    // Need to make the button become unclickable at this point
-    ui->StartDCButton->setDisabled(true);
-
-    // Needs to make sure the end data collection button is activated
-    ui->EndDCButton->setDisabled(false);
+    else
+    {
+        QMessageBox errorMSGBOX;
+        errorMSGBOX.setText(QString("Failed to open the serial connection"));
+        errorMSGBOX.exec();
+    }
 }
 
 // Activates whenever the End Data Collection Button is clicked.
 void RUNTEST::on_EndDCButton_clicked()
 {
-    // Stops the timer
-    if (m_dataRefrTimer->isActive())
+    if (m_serialReader->close())
     {
-        m_dataRefrTimer->stop();
+        // Stops the timer
+        if (m_dataRefrTimer->isActive())
+        {
+            m_dataRefrTimer->stop();
+        }
+
+        // Need to make this button become unactive at this point
+        ui->EndDCButton->setDisabled(true);
+
+        // Need to make the start data collection button become active. Also changes the text to "resume data collection."
+        ui->StartDCButton->setDisabled(false);
+        ui->StartDCButton->setText(QString("Resume Data Collection"));
     }
-
-    // Need to make this button become unactive at this point
-    ui->EndDCButton->setDisabled(true);
-
-    // Need to make the start data collection button become active. Also changes the text to "resume data collection."
-    ui->StartDCButton->setDisabled(false);
-    ui->StartDCButton->setText(QString("Resume Data Collection"));
+    else
+    {
+        QMessageBox errorMSGBOX;
+        errorMSGBOX.setText(QString("Failed to close the serial connection"));
+        errorMSGBOX.exec();
+    }
 }
 
 // Activates whenever the Open AFR Table button is clicked.
@@ -186,4 +227,9 @@ void RUNTEST::on_PlotDataButton_clicked()
     m_isplotting = true;
     mw = new MainWindow();
     mw->show();
+}
+
+void RUNTEST::on_setSerialPortButton_clicked()
+{
+    ui->serialPortNameLabel->setText(m_serialReader->selectPort());
 }
