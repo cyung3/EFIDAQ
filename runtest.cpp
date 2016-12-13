@@ -1,10 +1,13 @@
 #include "runtest.h"
 #include "ui_runtest.h"
 #include "serialreader.h"
-#include <QMessageBox>
 #include "tmodels.h"
 #include "mainwindow.h"
+#include "utilities.h"
 #include <QTimer>
+#include <QModelIndex>
+#include <QMessageBox>
+#include <QVector>
 
 RUNTEST::RUNTEST(QWidget *parent) :
     QWidget(parent),
@@ -25,13 +28,29 @@ RUNTEST::RUNTEST(QWidget *parent) :
     // Sets the xlistView to the LIST_CHOICES_MODEL.
     m_xlmodel = new LIST_CHOICES_MODEL(this);
     ui->xlistView->setModel(m_xlmodel);
+    connect(ui->xlistView, SIGNAL(clicked(QModelIndex)), SLOT(xItemChanged(QModelIndex)));
+    connect(ui->xlistView, SIGNAL(activated(QModelIndex)), SLOT(xItemChanged(QModelIndex)));
+    // Initializes the default axes labels by taking the elements at the first index
+    // in the model. If no element exists, defaults to an empty label.
+    m_xLabelIndex = 0;
+    if (!m_xlmodel->getItemAt(0, m_xLabel))
+    {
+        m_xLabel = "";
+    }
 
     // Sets the ylistView to the LIST_CHOICES_MODEL.
     m_ylmodel = new LIST_CHOICES_MODEL(this);
     ui->ylistView->setModel(m_ylmodel);
-
-    // Sets the source document for the DataBrowser to the specified file.
-    //ui->DataBrowser->setSource(QUrl("qrc:/INPUT_DATA.csv"));
+    connect(ui->ylistView, SIGNAL(clicked(QModelIndex)), SLOT(yItemChanged(QModelIndex)));
+    connect(ui->ylistView, SIGNAL(activated(QModelIndex)), SLOT(yItemChanged(QModelIndex)));
+    // Initializes the default axes labels by taking the elements at the first index
+    // in the model. If no element exists, defaults to an empty label.
+    m_yLabelIndex = 0;
+    if (!m_ylmodel->getItemAt(0, m_yLabel))
+    {
+        m_yLabel = "";
+    }
+    expectedNumFields = m_ylmodel->rowCount();
 
     // Sets the max and minimum values on the slider
     // This is actually the maximum sample rate speed using the current method.
@@ -64,6 +83,9 @@ RUNTEST::RUNTEST(QWidget *parent) :
     // Initialize serial reader for taking in data
     m_serialReader = new SERIALREADER(this);
     ui->serialPortNameLabel->setText(m_serialReader->portName());
+
+    // Initialize the byte buffer for serial input
+    m_bytebuf = new QByteArray;
 }
 
 // Destructor for the RUNTEST class
@@ -73,6 +95,7 @@ RUNTEST::~RUNTEST()
     delete m_xlmodel;
     delete m_ylmodel;
     delete m_dataRefrTimer;
+    delete m_bytebuf;
 
     QString text = "Deleted RUNTEST";
     QMessageBox qm(nullptr);
@@ -83,47 +106,85 @@ RUNTEST::~RUNTEST()
 // Function that runs everytime the time triggers.
 void RUNTEST::hitDataTimer()
 {
-    // Thought this was supposed to update the DataBrowser to the newest
-    // version of its source document, but apparently something is not
-    // working as I expected it to.
-    //ui->DataBrowser->reload();
-
-    // The following commented out statement is how text would be
-    // written to the DataBrowser without using the source document.
-    //ui->DataBrowser->setPlainText("Hello");
-
-    // The following commented out statement is how text would be appended
-    // to the end of the databrowser.
-    //ui->DataBrowser->append(QString("Data Point: %1").arg(m_ndp));
-
     // Not sure if there will be issues here if the serialreader happens to be
     // recording bytes while this code is run. Will need to look into further.
     // Possibly will require some sort of protocols to define the beginning and
     // ends of information.
-    QByteArray data;
+    QByteArray data(*m_bytebuf);
     unsigned long long nBytes = m_serialReader->availableData(data);
+    m_bytebuf->clear();
 
     // Check to see if any bytes were recorded
-    if (nBytes <= 0)
+    if (nBytes <= 0 && data.isEmpty())
     {
-        // If no bytes are available, then just return because there is no work to be done.
+        // If no bytes are available and there are no bytes waiting to be recorded,
+        // then just return because there is no work to be done.
         return;
     }
 
-    // Just to see what it looks like when the byte array is simply appended as a string.
-    ui->DataBrowser->append(QString(data));
+    // Identify the newline and delimiter character being used
+    const char newline = '\n';
+    const char delimiter = ',';
 
-    // For now, works like this.
-    m_ndp++;
+    // Split all the data into individual data points by splitting along the newline character.
+    QList<QByteArray> indivDataPoints = data.split(newline);
+    QList<QByteArray> indivFields;
 
-    // Update the LCD with the total sampe number
+    // Initialize data lists for the x and y axes respectively.
+    QVector<double> xData;
+    QVector<double> yData;
+
+    // Loops through the individual data points and prints them to the screen one at a time.
+    for (int i = 0; i < indivDataPoints.length()-1; i++)
+    {
+        indivFields = indivDataPoints[i].split(delimiter);
+
+        // Might not want this but it only prints data points that have the expected
+        // number of fields. Filters out some bad input but still not fullproof.
+        if (indivFields.length() == expectedNumFields)
+            ui->DataBrowser->append(QString(indivDataPoints[i]));
+
+        if (m_isplotting)
+        {
+            // Appends the xData and yData points
+            // Check is necessary to ensure index is within the range of data input.
+            if (m_xLabelIndex < indivFields.length() && m_yLabelIndex < indivFields.length())
+            {
+                QString xstr = QString(indivFields[m_xLabelIndex]);
+                xstr.remove(QRegExp(QString("[\n\t\r]*")));
+                double xval = xstr.toDouble();
+                xData.append(xval);
+
+                QString ystr = QString(indivFields[m_yLabelIndex]);
+                ystr.remove(QRegExp(QString("[\n\t\r]*")));
+                double yval = ystr.toDouble();
+                yData.append(yval);
+            }
+        }
+
+        m_ndp++;
+    }
+
+
+    // If the last entry in the data point list is empty, then the data gathered was a complete point.
+    // Otherwise, store the excess data in a buffer to be prepended before the next read from the
+    // available serial data.
+    if (!indivDataPoints.isEmpty())
+    {
+        bool isCompleteMsg = indivDataPoints[indivDataPoints.length() - 1].length() == 0;
+        if (!isCompleteMsg)
+        {
+            m_bytebuf->append(indivDataPoints[indivDataPoints.length() - 1]);
+        }
+    }
+    else return;
+
+    // Update the LCD with the total sample number
     ui->NumDPlcd->display((int) m_ndp);
-
-    int xData = 0;
-    int yData = 0;
+\
 
     // Update charts
-    if (m_isplotting)
+    if (m_isplotting && !xData.isEmpty() && !yData.isEmpty())
     {
         addData(xData, yData);
     }
@@ -159,6 +220,7 @@ void RUNTEST::on_sampleRateEdit_editingFinished()
 }
 
 // Activates whenever the Start Data Collection Button is clicked.
+// Resuming data collection causes strange bytes.
 void RUNTEST::on_StartDCButton_clicked()
 {
     // Attempt to open the serial connection
@@ -185,6 +247,7 @@ void RUNTEST::on_StartDCButton_clicked()
 }
 
 // Activates whenever the End Data Collection Button is clicked.
+// Ending data collection causes strange bytes.
 void RUNTEST::on_EndDCButton_clicked()
 {
     if (m_serialReader->close())
@@ -201,6 +264,12 @@ void RUNTEST::on_EndDCButton_clicked()
         // Need to make the start data collection button become active. Also changes the text to "resume data collection."
         ui->StartDCButton->setDisabled(false);
         ui->StartDCButton->setText(QString("Resume Data Collection"));
+
+        // Write any bytes waiting in the byte buffer to the screen
+        //ui->DataBrowser->append(QString(*m_bytebuf));
+
+        // Clear out the byte buffer
+        m_bytebuf->clear();
     }
     else
     {
@@ -216,7 +285,8 @@ void RUNTEST::on_OpenAFRTableButton_clicked()
 
 }
 
-void RUNTEST::addData(int xData, int yData)
+// Add Data to the plot
+void RUNTEST::addData(QVector<double> xData, QVector<double> yData)
 {
     mw->addData(xData,yData);
 }
@@ -229,7 +299,26 @@ void RUNTEST::on_PlotDataButton_clicked()
     mw->show();
 }
 
+// Activates whenever the get serial port button has been clicked.
 void RUNTEST::on_setSerialPortButton_clicked()
 {
     ui->serialPortNameLabel->setText(m_serialReader->selectPort());
+}
+
+// Activated whenever the xListView selection is changed.
+void RUNTEST::xItemChanged(QModelIndex xindex)
+{
+    // Change string for x item
+    m_xlmodel->getItemAt(xindex.row(), m_xLabel);
+    m_xLabelIndex = xindex.row();
+    //ui->DataBrowser->append(m_xLabel);
+}
+
+// Activated whenever the yListView selection is changed.
+void RUNTEST::yItemChanged(QModelIndex yindex)
+{
+    // change string for y item
+    m_ylmodel->getItemAt(yindex.row(), m_yLabel);
+    m_yLabelIndex = yindex.row();
+    //ui->DataBrowser->append(m_yLabel);
 }

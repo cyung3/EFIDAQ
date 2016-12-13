@@ -39,3 +39,6 @@ FORMS    += efidaq.ui \
 
 RESOURCES += \
     efidaq.qrc
+
+DISTFILES += \
+    TODO.txt

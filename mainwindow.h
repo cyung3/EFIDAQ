@@ -61,8 +61,9 @@ public:
   void setupDemo();
   void setupRealtimeDataDemo(QCustomPlot *customPlot);
   void setupPlayground(QCustomPlot *customPlot);
-   void addData(int x, int y);
-  
+  void addData(QVector<double> X, QVector<double> Y);
+  void setup(QCustomPlot *customPlot);
+
 private slots:
   
 private:

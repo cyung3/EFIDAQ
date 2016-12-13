@@ -54,7 +54,16 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->setupUi(this);
   setGeometry(400, 250, 542, 390);
   
-  setupDemo();
+  // Set the window to automatically call the destructor when closed.
+  this->setAttribute(Qt::WA_DeleteOnClose, true);
+
+  setup(ui->customPlot);
+  QString name = "Plot";
+  setWindowTitle("QCustomPlot: " + name);
+  statusBar()->clearMessage();
+  ui->customPlot->replot();
+
+  //setupDemo();
   // for making screenshots of the current demo or all demos (for website screenshots):
   //QTimer::singleShot(1500, this, SLOT(allScreenShots()));
   //QTimer::singleShot(4000, this, SLOT(screenShot()));
@@ -62,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::setupDemo()
 {
-    setupRealtimeDataDemo(ui->customPlot);
+  setupRealtimeDataDemo(ui->customPlot);
   setWindowTitle("QCustomPlot: "+demoName);
   statusBar()->clearMessage();
   ui->customPlot->replot();
@@ -73,14 +82,14 @@ void MainWindow::setupRealtimeDataDemo(QCustomPlot *customPlot)
   demoName = "Real Time Data Demo";
   
   // include this section to fully disable antialiasing for higher performance:
-  /*
+/*
   customPlot->setNotAntialiasedElements(QCP::aeAll);
   QFont font;
   font.setStyleStrategy(QFont::NoAntialias);
   customPlot->xAxis->setTickLabelFont(font);
   customPlot->yAxis->setTickLabelFont(font);
   customPlot->legend->setFont(font);
-  */
+*/
   customPlot->addGraph(); // blue line
   customPlot->graph(0)->setPen(QPen(QColor(40, 110, 255)));
 
@@ -95,41 +104,64 @@ void MainWindow::setupRealtimeDataDemo(QCustomPlot *customPlot)
   connect(customPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), customPlot->yAxis2, SLOT(setRange(QCPRange)));
 }
 
-
-void MainWindow::addData(int x, int y)
+void MainWindow::addData(QVector<double> X, QVector<double> Y)
 {
-    //ui->customPlot->graph(0)->addData((double)RAND_MAX*1, (double)RAND_MAX*1);
-    static QTime time(QTime::currentTime());
     // calculate two new data points:
-    double key = time.elapsed()/1000.0; // time elapsed since start of demo, in seconds
-    static double lastPointKey = 0;
-    if (key-lastPointKey > 0.002) // at most add point every 2 ms
-    {
-      // add data to lines:
-      ui->customPlot->graph(0)->addData(key, qSin(key)+qrand()/(double)RAND_MAX*1*qSin(key/0.3843));
-      // rescale value (vertical) axis to fit the current data:
-      //ui->customPlot->graph(0)->rescaleValueAxis();
-      //ui->customPlot->graph(1)->rescaleValueAxis(true);
-      lastPointKey = key;
-    }
+    double key = 0;
+    if (X.length() > 0)
+        key = X[0];
+    else return;
+    // add data to lines:
+    ui->customPlot->graph(0)->addData(X, Y);
+
+    // rescale both axes to fit the current data
+    ui->customPlot->graph(0)->rescaleAxes();
+    bool foundRange = false;
+    QCPRange xrange = ui->customPlot->graph(0)->getKeyRange(foundRange);
+    if (foundRange)
+        ui->customPlot->xAxis->setRange(xrange);
+
+    foundRange = false;
+    QCPRange yrange = ui->customPlot->graph(0)->getValueRange(foundRange);
+    if (foundRange)
+        ui->customPlot->yAxis->setRange(yrange);
+
     // make key axis range scroll with the data (at a constant range size of 8):
-    ui->customPlot->xAxis->setRange(key, 8, Qt::AlignRight);
+    //ui->customPlot->xAxis->setRange(key, 8, Qt::AlignRight);
+
     ui->customPlot->replot();
 
-    // calculate frames per second:
-    static double lastFpsKey;
-    static int frameCount;
-    ++frameCount;
-    if (key-lastFpsKey > 2) // average fps over 2 seconds
+    // Only keep 100 data points at a time.
+    if (ui->customPlot->graph(0)->dataCount() > 100)
     {
-      ui->statusBar->showMessage(
-            QString("%1 FPS, Total Data points: %2")
-            .arg(frameCount/(key-lastFpsKey), 0, 'f', 0)
-            .arg(ui->customPlot->graph(0)->data()->size())
-            , 0);
-      lastFpsKey = key;
-      frameCount = 0;
+        ui->customPlot->replot();
+        ui->customPlot->graph(0)->data()->clear();
     }
+}
+
+void MainWindow::setup(QCustomPlot* customPlot)
+{
+    // include this section to fully disable antialiasing for higher performance:
+
+    customPlot->setNotAntialiasedElements(QCP::aeAll);
+    QFont font;
+    font.setStyleStrategy(QFont::NoAntialias);
+    customPlot->xAxis->setTickLabelFont(font);
+    customPlot->yAxis->setTickLabelFont(font);
+    customPlot->legend->setFont(font);
+
+    customPlot->addGraph(); // blue line
+    customPlot->graph(0)->setPen(QPen(QColor(40, 110, 255)));
+
+    //QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
+    //timeTicker->setTimeFormat("%h:%m:%s");
+    //customPlot->xAxis->setTicker(timeTicker);
+    //customPlot->axisRect()->setupFullAxesBox();
+    //customPlot->yAxis->setRange(-1.2, 1.2);
+
+    // make left and bottom axes transfer their ranges to right and top axes:
+    connect(customPlot->xAxis, SIGNAL(rangeChanged(QCPRange)), customPlot->xAxis2, SLOT(setRange(QCPRange)));
+    connect(customPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), customPlot->yAxis2, SLOT(setRange(QCPRange)));
 }
 
 void MainWindow::setupPlayground(QCustomPlot *customPlot)

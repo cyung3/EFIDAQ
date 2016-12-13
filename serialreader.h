@@ -14,6 +14,7 @@ public:
     ~SERIALREADER();
     bool open(QSerialPort::OpenMode openmode);
     bool close();
+    void flush();
     unsigned long long availableData(QByteArray& data);
     QString selectPort();
     QString portName() const;

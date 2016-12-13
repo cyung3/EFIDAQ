@@ -5,6 +5,7 @@
 #include <QTextStream>
 #include <QFile>
 #include <stdio.h>
+#include <QRegularExpression>
 
 //================================//
 // AFR_TABLE_MODEL IMPLEMENTATION //
@@ -16,47 +17,38 @@ AFR_TABLE_MODEL::AFR_TABLE_MODEL(QObject *parent)
     // Attempts to load the AFR_TABLE.csv contents into the table.
     // Need to make it so that the user can specify the name of the file
     // to load from. This will be the default value for now.
-    if (!loadCSV(":/AFR_TABLE.csv"))
+    if (loadCSV(":/AFR_TABLE.csv", m_gridData))
     {
-        m_gridData = new QString*[DEFAULT_NROWS];
-        m_nrows = DEFAULT_NROWS;
-        for (unsigned int i = 0; i < DEFAULT_NROWS; i++)
+        // Get the row headers
+        for (int i = 1; i < m_gridData.length(); i++)
         {
-            m_gridData[i] = new QString[DEFAULT_NCOLS];
+            m_rowHeaders.append(m_gridData[i][0]);
+            m_gridData[i].removeAt(0);
         }
-        m_ncols = DEFAULT_NCOLS;
-
-        // Initialize the data in the table here if no AFR_TABLE.csv is present
-        for (unsigned int i = 0; i < m_nrows; i++)
-        {
-            for (unsigned int j = 0; j < m_ncols; j++)
-            {
-                // Defaults to just printing the coordinates of each spot in the table.
-                m_gridData[i][j] = QString("(%1, %2)").arg(i).arg(j);
-            }
-        }
+        // Get the col headers
+        m_colHeaders = m_gridData[0];
+        m_gridData.removeAt(0);
     }
 }
 
 AFR_TABLE_MODEL::~AFR_TABLE_MODEL()
 {
-    for (unsigned int i = 0; i < m_nrows; i++)
-    {
-        delete[] m_gridData[i];
-    }
-    delete[] m_gridData;
+
 }
 
 // Determines the number of rows in the table.
 int AFR_TABLE_MODEL::rowCount(const QModelIndex & /*parent*/) const
 {
-    return (int) m_nrows;
+    return m_gridData.length();
 }
 
 // Determines the number of columns in the table.
 int AFR_TABLE_MODEL::columnCount(const QModelIndex & /*parent*/) const
 {
-    return (int) m_ncols;
+    if (m_gridData.length() > 0)
+        return m_gridData[0].length();
+    else
+        return 0;
 }
 
 // Sets the parameters that determine what and how data is displayed in the cells
@@ -66,6 +58,7 @@ QVariant AFR_TABLE_MODEL::data(const QModelIndex &index, int role) const
 {
     int row = index.row();
     int col = index.column();
+    //notify(QString("data (%1,%2)").arg(row).arg(col));
 
     switch(role){
     case Qt::DisplayRole: // Sets the text at the point (row,column) in the table.
@@ -111,54 +104,10 @@ QVariant AFR_TABLE_MODEL::headerData(int section, Qt::Orientation orientation, i
     if (role == Qt::DisplayRole)
     {
         if (orientation == Qt::Horizontal) { // Headers for each column (appear above)
-            switch (section)
-            {
-            case 0:
-                return QString("0 - 799");
-            case 1:
-                return QString("800 - 1599");
-            case 2:
-                return QString("1600 - 2399");
-            case 3:
-                return QString("2400 - 3199");
-            case 4:
-                return QString("3200 - 3999");
-            case 5:
-                return QString("4000 - 4799");
-            case 6:
-                return QString("4800 - 5599");
-            case 7:
-                return QString("5600 - 6399");
-            case 8:
-                return QString("6400 - 7199");
-            case 9:
-                return QString("7200 - 7999");
-            }
+            return m_colHeaders[section];
         }
         else if (orientation == Qt::Vertical) { // Headers for each row (appear on the left)
-            switch (section)
-            {
-            case 0:
-                return QString("100%");
-            case 1:
-                return QString("90%");
-            case 2:
-                return QString("80%");
-            case 3:
-                return QString("70%");
-            case 4:
-                return QString("60%");
-            case 5:
-                return QString("50%");
-            case 6:
-                return QString("40%");
-            case 7:
-                return QString("30%");
-            case 8:
-                return QString("20%");
-            case 9:
-                return QString("10%");
-            }
+            return m_rowHeaders[section];
         }
     }
     return QVariant();
@@ -171,19 +120,6 @@ bool AFR_TABLE_MODEL::setData(const QModelIndex & index, const QVariant & value,
     {
         //save value from editor to member m_gridData
         m_gridData[index.row()][index.column()] = value.toString();
-
-        //for presentation purposes only: build and emit a joined string
-        QString result;
-        for(unsigned int row = 0; row < m_nrows; row++)
-        {
-            for(unsigned int col = 0; col < m_ncols; col++)
-            {
-                result += m_gridData[row][col] + " ";
-            }
-        }
-
-        // signal that signifies the editing has finished.
-        emit editCompleted( result );
 
         // Need to emit this signal to tell the table to update its values.
         emit dataChanged(index, index);
@@ -201,84 +137,6 @@ Qt::ItemFlags AFR_TABLE_MODEL::flags(const QModelIndex & /*index*/) const
     return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
 }
 
-// Loads a ".csv" file into the table. Currently only supports a fixed size table.
-// Also does not suport changing the headers yet.
-bool AFR_TABLE_MODEL::loadCSV(QString filename)
-{
-    // Open the input filename as read only.
-    QFile inputFile(filename);
-    inputFile.open(QIODevice::ReadOnly);
-
-    // Check to make sure the file was opened properly
-    if (inputFile.isOpen())
-    {
-        const QChar col_delimiter = ',';
-        const QChar row_delimiter = '\n';
-        // Possibly need to check if input stream was created successfully?
-        QTextStream in(&inputFile);
-
-        // Determine the number of rows that need to be allocated.
-        QString alltext = in.readAll();
-        m_nrows = numfields(row_delimiter, alltext);
-
-        // Allocate the necessary number of rows.
-        m_gridData = new QString*[m_nrows];
-        m_ncols = 0;
-
-        // Take the number of fields in the first line as the number of columns
-        // in the table.
-        in.seek(0);
-        QString line = in.readLine();
-        m_ncols = numfields(col_delimiter, line);
-
-        // Start back from the beginning of the delimited file.
-        in.seek(0);
-        for (unsigned int row = 0; row < m_nrows; row++)
-        {
-            // Read a line from the .csv file
-            QString line = in.readLine();
-
-            // Count the number of fields in the line.
-            unsigned int ncols = numfields(col_delimiter, line);
-
-            // Check to make sure all input lines have the same number of fields.
-            if (ncols != m_ncols)
-            {
-                for (unsigned int j = 0; j < row; j++)
-                {
-                    delete[] m_gridData[j];
-                }
-                delete[] m_gridData;
-                return false;
-            }
-
-            // Allocate an array of QStrings large enough to hold each column.
-            m_gridData[row] = new QString[ncols];
-
-            // Copy the value for each field into the table data.
-            for (unsigned int col = 0, i = 0; col < ncols; col++, i++)
-            {
-                m_gridData[row][col] = "";
-                while ((int) i < line.length() && line[i] != col_delimiter)
-                {
-                    m_gridData[row][col] += line[i];
-                    i++;
-                }
-            }
-        }
-        // Perform resource cleanup
-        inputFile.close();
-
-        // Return true on success
-        return true;
-    }
-    else
-    {
-        // Return false on failure
-        return false;
-    }
-}
-
 //===================================//
 // LIST_CHOICES_MODEL IMPLEMENTATION //
 //===================================//
@@ -286,31 +144,43 @@ bool AFR_TABLE_MODEL::loadCSV(QString filename)
 LIST_CHOICES_MODEL::LIST_CHOICES_MODEL(QObject *parent)
     :QAbstractListModel(parent)
 {
+    QList<QList<QString>> allFields;
     // Attempts to load the LABEL_LIST.csv contents into the table.
     // Need to make it so that the user can specify the name of the file
     // to load from. This will be the default value for now.
-    if (!loadCSV(":/LABEL_LIST.csv"))
+    if (loadCSV(":/LABEL_LIST.csv", allFields))
     {
-        m_listData = new QString[DEFAULT_NROWS];
-        m_listSize = DEFAULT_NROWS;
-        // Initialize the data in the table here if no AFR_TABLE.csv is present
-        for (unsigned int i = 0; i < DEFAULT_NROWS; i++)
+        // Extracts the list labels from the first line of the .csv file.
+        // Checks to make sure the fields aren't empty
+        if (!allFields.isEmpty())
         {
-            // Defaults to just printing the coordinates of each spot in the table.
-            m_listData[i] = QString("%1").arg(i);
+            m_listData = allFields[0];
+
+            // Delete any strings that are empty.
+            for (int i = 0; i < m_listData.length(); i++)
+            {
+                // Remove any invalid characters in the list.
+                m_listData[i].remove(QRegExp(QString("[\n\r]")));
+
+                // Remove any empty list items.
+                if (m_listData[i].isEmpty())
+                {
+                    m_listData.removeAt(i);
+                }
+            }
         }
     }
 }
 
 LIST_CHOICES_MODEL::~LIST_CHOICES_MODEL()
 {
-    delete[] m_listData;
+
 }
 
 // Determines the number of rows in the list.
 int LIST_CHOICES_MODEL::rowCount(const QModelIndex & /*parent*/) const
 {
-    return (int) m_listSize;
+    return m_listData.length();
 }
 
 // Sets the parameters that determine what and how data is displayed in the cells
@@ -379,44 +249,13 @@ QVariant LIST_CHOICES_MODEL::headerData(int section, Qt::Orientation orientation
     return QVariant();
 }
 
-// Loads a ".csv" file into the table. Currently only supports a fixed size table.
-// Also does not suport changing the headers yet.
-bool LIST_CHOICES_MODEL::loadCSV(QString filename)
+// Returns the String at a specific index in the list data.
+// If there is no item at the specified index, returns false and item is unchanged.
+bool LIST_CHOICES_MODEL::getItemAt(int row, QString& item)
 {
-    QFile inputFile(filename);
-    inputFile.open(QIODevice::ReadOnly);
-
-    // Check to make sure the file was opened properly
-    if (inputFile.isOpen())
-    {
-        const QChar delimiter = ',';
-
-        // Possibly need to check if input stream was created successfully?
-        QTextStream in(&inputFile);
-
-        // Read a line from the .csv file
-        QString line = in.readLine();
-
-        m_listSize = numfields(delimiter, line);
-
-        m_listData = new QString[m_listSize];
-
-        for (unsigned int row = 0, i = 0; row < m_listSize; row++, i++)
-        {
-            while ((int) i < line.length() && line[i] != delimiter)
-            {
-                m_listData[row] += line[i];
-                i++;
-            }
-        }
-
-        // Perform resource cleanup
-        inputFile.close();
-
-        // Return true on success
+    if (row >= 0 && row < m_listData.length()) {
+        item = m_listData[row];
         return true;
     }
-    // Return false on failure to open file
-    return false;
+    else return false;
 }
-

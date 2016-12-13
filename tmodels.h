@@ -3,6 +3,8 @@
 
 #include <QAbstractTableModel>
 #include <QAbstractListModel>
+#include <QList>
+#include <QString>
 
 const unsigned int DEFAULT_NROWS = 10;
 const unsigned int DEFAULT_NCOLS = 10;
@@ -32,13 +34,11 @@ public:
     // Flags that change properties about specific cells such as which cells can be edited.
     Qt::ItemFlags flags(const QModelIndex & index) const ;
 
-    // Loads data from a .csv file into the m_gridData member
-    bool loadCSV(QString filename);
 private:
     // holds text entered into the table cells
-    QString** m_gridData;
-    unsigned int m_nrows;
-    unsigned int m_ncols;
+    QList<QList<QString>> m_gridData;
+    QList<QString> m_rowHeaders;
+    QList<QString> m_colHeaders;
 signals:
     void editCompleted(const QString &);
 };
@@ -59,18 +59,19 @@ public:
     // Determines the initial headers over each column and to the left of each row.
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
+    // Returns the String at a specific index in the list data.
+    // If there is no item at the specified index, returns false and item is unchanged.
+    bool getItemAt(int row, QString& item);
+
     // Allows the user to enter text into the table.
     //bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
 
     // Flags that change properties about specific cells such as which cells can be edited.
     //Qt::ItemFlags flags(const QModelIndex & index) const ;
 
-    // Loads data from a .csv file into the m_listData member
-    bool loadCSV(QString filename);
 private:
     // holds text entered into the table cells
-    QString* m_listData;
-    unsigned int m_listSize;
+    QList<QString> m_listData;
 signals:
 };
 

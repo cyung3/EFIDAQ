@@ -15,10 +15,9 @@ SERIALREADER::SERIALREADER(QObject* parent)
 
     // Connect signals to slots
     connect(m_serialPort, SIGNAL(error(QSerialPort::SerialPortError)), SLOT(handleError(QSerialPort::SerialPortError)));
-    connect(m_serialPort, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
 
-    // Get the available ports maybe?
-    //this->selectPort();
+    // Uncomment this to let the user set the serial port when the window opens.
+    this->selectPort();
 
 }
 
@@ -34,7 +33,11 @@ bool SERIALREADER::open(QSerialPort::OpenMode openmode)
 {
     if (!m_serialPort->isOpen())
     {
-        return m_serialPort->open(openmode);
+        if (m_serialPort->open(openmode))
+        {
+            connect(m_serialPort, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
+            return true;
+        }
     }
     return false;
 }
@@ -44,10 +47,17 @@ bool SERIALREADER::close()
 {
     if (m_serialPort->isOpen())
     {
+        disconnect(m_serialPort, SIGNAL(readyRead()));
         m_serialPort->close();
         return true;
     }
     return false;
+}
+
+void SERIALREADER::flush()
+{
+    handleReadyRead();
+    m_data->clear();
 }
 
 // Gets the available data from the serial bytearray.
@@ -78,7 +88,7 @@ QString SERIALREADER::selectPort()
     case 0:
         determinePort.setText(QString("No serial ports currently available."));
         determinePort.exec();
-        break;
+        return QString("NONE");
     case 1:
         m_serialPort->setPort(availablePorts[0]);
         break;
@@ -124,11 +134,14 @@ void SERIALREADER::handleReadyRead()
 // Handles errors
 void SERIALREADER::handleError(QSerialPort::SerialPortError error)
 {
+    QMessageBox errorMSGBOX;
+    QString errorMSG = "";
     switch (error)
     {
     case QSerialPort::NoError:
         return;
     case QSerialPort::DeviceNotFoundError:
+        errorMSG = "ERROR. No serial device found.";
         return;
     case QSerialPort::PermissionError:
         return;
@@ -141,6 +154,7 @@ void SERIALREADER::handleError(QSerialPort::SerialPortError error)
     case QSerialPort::ReadError:
         return;
     case QSerialPort::ResourceError:
+        errorMSG = "ERROR. The serial connection was abruptly terminated.";
         return;
     case QSerialPort::UnsupportedOperationError:
         return;
@@ -149,6 +163,8 @@ void SERIALREADER::handleError(QSerialPort::SerialPortError error)
     default:
         return;
     }
+    errorMSGBOX.setText(errorMSG);
+    errorMSGBOX.exec();
 
     //QSerialPort::NoError                    0	No error occurred.
     //QSerialPort::DeviceNotFoundError        1	An error occurred while attempting to open an non-existing device.

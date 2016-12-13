@@ -1,0 +1,27 @@
+List of items that are on the TODO list for the DAQ system
+
+1) Fix bug causing system to crash if data collection is stopped and then started again.
+2) Make QCustomPlot plotting have a toggle box for connecting data points by lines or not.
+3) Make button for opening the AFR Table during testing open a new window showing a full
+    AFR Table. There should be a button that, when clicked, will instruct the arduino to
+    update its onboard AFR table to have the values listed in the table in the program.
+4) Need to make thr arduino synchronize the order of its data output to the order
+    shown in the xListview and yListview which show all the available axis labels.
+    This can be done by having a signal sent to the arduino when the start data collection
+    button is clicked that has the arduino send a quick .csv message to the DAQ system
+    which can be loaded into the xlistview and ylistview before starting data collection.
+5) Make QCustomPlot window have an option which allows the user to dynamically choose
+    how many points to keep on the plot at a time.
+6) Make testsetup window able to communicate parameters and the AFR Table values to the
+    arduino via a button that can be clicked.
+7) Need to implement a button on the runtest window that can clear out the data currently
+    held on the DataViewer.
+8) Need to rename the "mainwindow" class and filenames for QCustomPlot stuff to something
+    meaningful.
+9) Need to implement a button for saving the data currently held in the dataview to a .csv file.
+10) Need to button that can send a signal to the Arduino to reset itself.
+11) Need to change all the windows to mainwindows in order to make use of the increased functionality.
+12) If the data collection is repeatedly started and stopped, bad bytes come through. Need
+     to find a way to get rid of the bad bytes before they are printed to the screen.
+13) Need to make input filter toggle-able. This is the filter that only accepts input that has
+     the correct number of fields.
