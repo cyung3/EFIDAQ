@@ -40,6 +40,7 @@
 *************************************************************************************************************/
 
 #include "mainwindow.h"
+#include "runtest.h"
 #include "ui_mainwindow.h"
 #include <QDebug>
 #include <QDesktopWidget>
@@ -47,15 +48,16 @@
 #include <QMessageBox>
 #include <QMetaEnum>
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget* parent, RUNTEST* rparent) :
   QMainWindow(parent),
   ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
   setGeometry(400, 250, 542, 390);
   
-  // Set the window to automatically call the destructor when closed.
-  this->setAttribute(Qt::WA_DeleteOnClose, true);
+  // Needed in order to set a flag in RUNTEST if the plotting window
+  // is abruptly closed.
+  this->rparent = rparent;
 
   setup(ui->customPlot);
   QString name = "Plot";
@@ -106,20 +108,22 @@ void MainWindow::setupRealtimeDataDemo(QCustomPlot *customPlot)
 
 void MainWindow::addData(QVector<double> X, QVector<double> Y)
 {
-    // calculate two new data points:
-    double key = 0;
-    if (X.length() > 0)
-        key = X[0];
-    else return;
+    if (X.isEmpty() || Y.isEmpty())
+        return;
+
     // add data to lines:
     ui->customPlot->graph(0)->addData(X, Y);
+
+    std::sort(X.begin(), X.end());
 
     // rescale both axes to fit the current data
     ui->customPlot->graph(0)->rescaleAxes();
     bool foundRange = false;
     QCPRange xrange = ui->customPlot->graph(0)->getKeyRange(foundRange);
     if (foundRange)
+    {
         ui->customPlot->xAxis->setRange(xrange);
+    }
 
     foundRange = false;
     QCPRange yrange = ui->customPlot->graph(0)->getValueRange(foundRange);
@@ -134,7 +138,6 @@ void MainWindow::addData(QVector<double> X, QVector<double> Y)
     // Only keep 100 data points at a time.
     if (ui->customPlot->graph(0)->dataCount() > 100)
     {
-        ui->customPlot->replot();
         ui->customPlot->graph(0)->data()->clear();
     }
 }
@@ -150,8 +153,17 @@ void MainWindow::setup(QCustomPlot* customPlot)
     customPlot->yAxis->setTickLabelFont(font);
     customPlot->legend->setFont(font);
 
-    customPlot->addGraph(); // blue line
+    // Creates the graph
+    customPlot->addGraph();
+
+    // Sets the points to blue
     customPlot->graph(0)->setPen(QPen(QColor(40, 110, 255)));
+
+    // Sets the line style to none, making it a scatter plot
+    //customPlot->graph(0)->setLineStyle(QCPGraph::LineStyle::lsNone);
+
+    // Sets the scatter style to be dots
+    //customPlot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 6));
 
     //QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
     //timeTicker->setTimeFormat("%h:%m:%s");
@@ -167,6 +179,12 @@ void MainWindow::setup(QCustomPlot* customPlot)
 void MainWindow::setupPlayground(QCustomPlot *customPlot)
 {
   Q_UNUSED(customPlot)
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    event->accept();
+    rparent->stopPlotting();
 }
 
 MainWindow::~MainWindow()

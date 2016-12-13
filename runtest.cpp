@@ -24,6 +24,8 @@ RUNTEST::RUNTEST(QWidget *parent) :
 
     // Initialize as not plotting
     m_isplotting = false;
+    // Initialize pointer to plotting window
+    mw = nullptr;
 
     // Sets the xlistView to the LIST_CHOICES_MODEL.
     m_xlmodel = new LIST_CHOICES_MODEL(this);
@@ -97,10 +99,21 @@ RUNTEST::~RUNTEST()
     delete m_dataRefrTimer;
     delete m_bytebuf;
 
+    if (mw != nullptr)
+        delete mw;
+
     QString text = "Deleted RUNTEST";
     QMessageBox qm(nullptr);
     qm.setText(text);
     qm.exec();
+}
+
+// Stops plotting
+void RUNTEST::stopPlotting()
+{
+    m_isplotting = false;
+    delete mw;
+    mw = nullptr;
 }
 
 // Function that runs everytime the time triggers.
@@ -288,14 +301,16 @@ void RUNTEST::on_OpenAFRTableButton_clicked()
 // Add Data to the plot
 void RUNTEST::addData(QVector<double> xData, QVector<double> yData)
 {
-    mw->addData(xData,yData);
+    if (mw != nullptr)
+        mw->addData(xData,yData);
 }
 
 // Activates whenever the Plot Data button is clicked.
 void RUNTEST::on_PlotDataButton_clicked()
 {
     m_isplotting = true;
-    mw = new MainWindow();
+    if (mw == nullptr)
+        mw = new MainWindow(nullptr, this);
     mw->show();
 }
 

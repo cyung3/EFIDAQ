@@ -25,3 +25,7 @@ List of items that are on the TODO list for the DAQ system
      to find a way to get rid of the bad bytes before they are printed to the screen.
 13) Need to make input filter toggle-able. This is the filter that only accepts input that has
      the correct number of fields.
+14) Need to reimplement closeEvent for RUNTEST window in order to ask if the user wants to save
+     the data in the databrowser before closing the windows. Also need to properly close the
+     serial port in case it is open. Also need to make sure the plotting window is properly
+     closed in the event that the RUNTEST window is closed.

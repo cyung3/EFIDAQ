@@ -21,6 +21,7 @@ public:
     RUNTEST(QWidget *parent = 0);
     ~RUNTEST();
 
+    void stopPlotting();
 public slots:
     void hitDataTimer();
     void xItemChanged(QModelIndex xindex);

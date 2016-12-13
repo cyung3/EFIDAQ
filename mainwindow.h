@@ -50,12 +50,14 @@ namespace Ui {
 class MainWindow;
 }
 
+class RUNTEST;
+
 class MainWindow : public QMainWindow
 {
   Q_OBJECT
   
 public:
-  explicit MainWindow(QWidget *parent = 0);
+  explicit MainWindow(QWidget* parent = 0, RUNTEST* rparent = 0);
   ~MainWindow();
   
   void setupDemo();
@@ -67,11 +69,15 @@ public:
 private slots:
   
 private:
+  void closeEvent(QCloseEvent *event);
+
   Ui::MainWindow *ui;
   QString demoName;
   QTimer dataTimer;
   QCPItemTracer *itemDemoPhaseTracer;
   int currentDemoIndex;
+
+  RUNTEST* rparent;
 };
 
 #endif // MAINWINDOW_H
