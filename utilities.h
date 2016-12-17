@@ -5,6 +5,15 @@
 #include <QString>
 #include <QChar>
 
+namespace efidaq
+{
+const int SUCCESS = 0;
+const int CANCELLED = 1;
+const int FAILED_CURRENTLY_COLLECTING = 2;
+const int OPEN_FILE_FAILED = 3;
+const int WRITE_FILE_FAILED = 4;
+}
+
 unsigned int numfields(const QChar delimiter, const QString input);
 
 bool loadCSV(QString filename, QList<QList<QString>>& allFields);

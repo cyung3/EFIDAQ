@@ -11,7 +11,7 @@
 unsigned int numfields(const QChar delimiter, const QString input)
 {
     unsigned int num = 0;
-    unsigned int i = 0;
+    int i = 0;
 
     // Counts the number of delimiters. If there is a trailing delimiter,
     // this will be the number of fields. If there is no trailing delimiter,
@@ -72,7 +72,7 @@ bool loadCSV(QString filename, QList<QList<QString>>& allFields)
         bool emptyLine;
         for (int i = 0; i < allFields.length(); i++)
         {
-            bool emptyLine = true;
+            emptyLine = true;
             for (int j = 0; j < allFields[i].length(); j++)
             {
                 if (!allFields[i][j].isEmpty()) emptyLine = false;

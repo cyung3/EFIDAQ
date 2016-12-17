@@ -21,6 +21,9 @@ public:
     RUNTEST(QWidget *parent = 0);
     ~RUNTEST();
 
+    int saveData();
+    int clearData();
+    void setDataLocked(bool yes = true);
     void stopPlotting();
 public slots:
     void hitDataTimer();

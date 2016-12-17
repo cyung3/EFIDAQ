@@ -8,7 +8,7 @@ class EFIDAQ;
 }
 
 class TESTSETUP;
-class RUNTEST;
+class MAINRUNTEST;
 
 class EFIDAQ : public QMainWindow
 {
@@ -26,7 +26,7 @@ private slots:
 private:
     Ui::EFIDAQ* ui;
     TESTSETUP* ts;
-    RUNTEST* rt;
+    MAINRUNTEST* mrt;
 };
 
 #endif // EFIDAQ_H

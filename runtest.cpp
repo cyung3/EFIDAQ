@@ -7,7 +7,11 @@
 #include <QTimer>
 #include <QModelIndex>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QVector>
+#include <QFileDialog>
+#include <QDir>
+#include <QFile>
 
 RUNTEST::RUNTEST(QWidget *parent) :
     QWidget(parent),
@@ -16,9 +20,6 @@ RUNTEST::RUNTEST(QWidget *parent) :
     // Sets up the window to look like its ".ui" file.
     ui->setupUi(this);
 
-    // Set the window to automatically call the destructor when closed.
-    this->setAttribute(Qt::WA_DeleteOnClose, true);
-
     // Initialize the number of data points collected as 0.
     m_ndp = 0;
 
@@ -26,6 +27,9 @@ RUNTEST::RUNTEST(QWidget *parent) :
     m_isplotting = false;
     // Initialize pointer to plotting window
     mw = nullptr;
+
+    // Locks the data stream from being scrolled through or edited.
+    ui->DataBrowser->setDisabled(true);
 
     // Sets the xlistView to the LIST_CHOICES_MODEL.
     m_xlmodel = new LIST_CHOICES_MODEL(this);
@@ -93,6 +97,10 @@ RUNTEST::RUNTEST(QWidget *parent) :
 // Destructor for the RUNTEST class
 RUNTEST::~RUNTEST()
 {
+    if (m_dataRefrTimer->isActive())
+    {
+        on_EndDCButton_clicked();
+    }
     delete ui;
     delete m_xlmodel;
     delete m_ylmodel;
@@ -102,10 +110,7 @@ RUNTEST::~RUNTEST()
     if (mw != nullptr)
         delete mw;
 
-    QString text = "Deleted RUNTEST";
-    QMessageBox qm(nullptr);
-    qm.setText(text);
-    qm.exec();
+    //notify("Deleted RUNTEST");
 }
 
 // Stops plotting
@@ -114,6 +119,79 @@ void RUNTEST::stopPlotting()
     m_isplotting = false;
     delete mw;
     mw = nullptr;
+}
+
+// Saves the current data in the DataBrowser.
+// Requires the system to not currently be taking data.
+int RUNTEST::saveData()
+{
+    if (m_dataRefrTimer->isActive())
+    {
+        return efidaq::FAILED_CURRENTLY_COLLECTING;
+    }
+    else
+    {
+        QDir dir;
+        QString filename = QFileDialog::getSaveFileName(this, QString("Select a file to save the data to."), dir.currentPath());
+        if (filename.isEmpty())
+        {
+            return efidaq::CANCELLED;
+        }
+        QByteArray data;
+        data.append(ui->DataBrowser->toPlainText());
+        QFile file(filename, this);
+        if (!file.open(QFileDevice::WriteOnly))
+        {
+            return efidaq::OPEN_FILE_FAILED;
+        }
+        if (file.write(data) == -1)
+        {
+            file.close();
+            return efidaq::WRITE_FILE_FAILED;
+        }
+        file.close();
+        return efidaq::SUCCESS;
+    }
+}
+
+// Clears the information in the DataBrowser.
+// Requires the system to not currently be taking data.
+int RUNTEST::clearData()
+{
+    if (m_dataRefrTimer->isActive())
+    {
+        return efidaq::FAILED_CURRENTLY_COLLECTING;
+    }
+    else
+    {
+        QMessageBox msgbox;
+        msgbox.setText("Are you sure you want to clear the current data stream?");
+        QAbstractButton* a = msgbox.addButton(QMessageBox::Yes);
+        msgbox.addButton(QMessageBox::Cancel);
+        msgbox.exec();
+        QAbstractButton* b = msgbox.clickedButton();
+        if (b == a)
+        {
+            ui->DataBrowser->clear();
+            m_ndp = 0;
+            ui->NumDPlcd->display((int) m_ndp);
+            ui->StartDCButton->setText("Start Data Collection");
+            return efidaq::SUCCESS;
+        }
+        else
+        {
+            return efidaq::CANCELLED;
+        }
+    }
+}
+
+// Toggle the data browser lock.
+// True means scrollable and editable.
+// False means the opposite.
+void RUNTEST::setDataLocked(bool yes)
+{
+    ui->DataBrowser->setDisabled(yes);
+    ui->DataBrowser->setReadOnly(yes);
 }
 
 // Function that runs everytime the time triggers.
@@ -155,7 +233,13 @@ void RUNTEST::hitDataTimer()
         // Might not want this but it only prints data points that have the expected
         // number of fields. Filters out some bad input but still not fullproof.
         if (indivFields.length() == expectedNumFields)
-            ui->DataBrowser->append(QString(indivDataPoints[i]));
+        {
+            ui->DataBrowser->insertPlainText(QString(indivDataPoints[i]));
+
+            // Makes it only autoscroll if the verticalScrollBar is within 50 lines of the bottom.
+            if (ui->DataBrowser->verticalScrollBar()->maximum() - ui->DataBrowser->verticalScrollBar()->value() <= 50)
+                ui->DataBrowser->verticalScrollBar()->setValue(ui->DataBrowser->verticalScrollBar()->maximum());
+        }
 
         if (m_isplotting)
         {
@@ -253,9 +337,7 @@ void RUNTEST::on_StartDCButton_clicked()
     }
     else
     {
-        QMessageBox errorMSGBOX;
-        errorMSGBOX.setText(QString("Failed to open the serial connection"));
-        errorMSGBOX.exec();
+        notify(QString("Failed to open the serial connection"));
     }
 }
 
@@ -286,9 +368,7 @@ void RUNTEST::on_EndDCButton_clicked()
     }
     else
     {
-        QMessageBox errorMSGBOX;
-        errorMSGBOX.setText(QString("Failed to close the serial connection"));
-        errorMSGBOX.exec();
+        notify("Failed to close the serial connection");
     }
 }
 

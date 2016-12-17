@@ -1,7 +1,7 @@
 #include "efidaq.h"
 #include "ui_efidaq.h"
 #include "testsetup.h"
-#include "runtest.h"
+#include "mainruntest.h"
 
 EFIDAQ::EFIDAQ(QWidget *parent) :
     QMainWindow(parent),
@@ -36,6 +36,6 @@ void EFIDAQ::on_SetupButton_clicked()
 
 void EFIDAQ::on_RunTestButton_clicked()
 {
-    rt = new RUNTEST();
-    rt->show();
+    mrt = new MAINRUNTEST();
+    mrt->show();
 }

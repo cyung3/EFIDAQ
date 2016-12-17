@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     utilities.cpp \
     qcustomplot.cpp \
     mainwindow.cpp \
-    serialreader.cpp
+    serialreader.cpp \
+    mainruntest.cpp
 
 HEADERS  += efidaq.h \
     testsetup.h \
@@ -30,12 +31,14 @@ HEADERS  += efidaq.h \
     utilities.h \
     qcustomplot.h \
     mainwindow.h \
-    serialreader.h
+    serialreader.h \
+    mainruntest.h
 
 FORMS    += efidaq.ui \
     testsetup.ui \
     runtest.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    mainruntest.ui
 
 RESOURCES += \
     efidaq.qrc
