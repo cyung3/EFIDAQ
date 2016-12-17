@@ -12,6 +12,7 @@ class RUNTEST;
 
 class MainWindow;
 class SERIALREADER;
+class AFRTABLE;
 
 class RUNTEST : public QWidget
 {
@@ -45,6 +46,7 @@ private:
     Ui::RUNTEST *ui;
     LIST_CHOICES_MODEL* m_xlmodel;
     LIST_CHOICES_MODEL* m_ylmodel;
+    AFRTABLE* m_afrtable;
 
     QTimer* m_dataRefrTimer;
     long long m_ndp;

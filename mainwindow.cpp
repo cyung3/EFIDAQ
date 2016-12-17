@@ -106,13 +106,17 @@ void MainWindow::setupRealtimeDataDemo(QCustomPlot *customPlot)
   connect(customPlot->yAxis, SIGNAL(rangeChanged(QCPRange)), customPlot->yAxis2, SLOT(setRange(QCPRange)));
 }
 
-void MainWindow::addData(QVector<double> X, QVector<double> Y)
+void MainWindow::addData(QVector<double> X, QVector<double> Y, QString xLabel, QString yLabel)
 {
     if (X.isEmpty() || Y.isEmpty())
         return;
 
     // add data to lines:
     ui->customPlot->graph(0)->addData(X, Y);
+
+    // add axis labels
+    ui->customPlot->xAxis->setLabel(xLabel);
+    ui->customPlot->yAxis->setLabel(yLabel);
 
     std::sort(X.begin(), X.end());
 

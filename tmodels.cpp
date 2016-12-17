@@ -14,20 +14,15 @@
 AFR_TABLE_MODEL::AFR_TABLE_MODEL(QObject *parent)
     :QAbstractTableModel(parent)
 {
-    // Attempts to load the AFR_TABLE.csv contents into the table.
-    // Need to make it so that the user can specify the name of the file
-    // to load from. This will be the default value for now.
-    if (loadCSV(":/AFR_TABLE.csv", m_gridData))
+
+}
+
+AFR_TABLE_MODEL::AFR_TABLE_MODEL(QObject *parent, QString filename)
+    :QAbstractTableModel(parent)
+{
+    if (!loadTable(filename))
     {
-        // Get the row headers
-        for (int i = 1; i < m_gridData.length(); i++)
-        {
-            m_rowHeaders.append(m_gridData[i][0]);
-            m_gridData[i].removeAt(0);
-        }
-        // Get the col headers
-        m_colHeaders = m_gridData[0];
-        m_gridData.removeAt(0);
+        notify("Unable to load specified file.");
     }
 }
 
@@ -45,7 +40,7 @@ int AFR_TABLE_MODEL::rowCount(const QModelIndex & /*parent*/) const
 // Determines the number of columns in the table.
 int AFR_TABLE_MODEL::columnCount(const QModelIndex & /*parent*/) const
 {
-    if (m_gridData.length() > 0)
+    if (!m_gridData.isEmpty())
         return m_gridData[0].length();
     else
         return 0;
@@ -65,34 +60,34 @@ QVariant AFR_TABLE_MODEL::data(const QModelIndex &index, int role) const
         return m_gridData[row][col];
         break;
     case Qt::FontRole: // Sets the type of font at the point (row,column) in the table.
-        if (row == 0 && col == 0) //change font only for cell(0,0)
+        /*if (row == 0 && col == 0) //change font only for cell(0,0)
         {
             QFont boldFont;
             boldFont.setBold(true);
             return boldFont;
-        }
+        }*/
         break;
     case Qt::BackgroundRole:
 
-        if (row == 1 && col == 2)  //change background only for cell(1,2)
+        /*if (row == 1 && col == 2)  //change background only for cell(1,2)
         {
             QBrush redBackground(Qt::red);
             return redBackground;
-        }
+        }*/
         break;
     case Qt::TextAlignmentRole:
 
-        if (row == 1 && col == 1) //change text alignment only for cell(1,1)
+        /*if (row == 1 && col == 1) //change text alignment only for cell(1,1)
         {
             return Qt::AlignRight + Qt::AlignVCenter;
-        }
+        }*/
         break;
     case Qt::CheckStateRole:
 
-        if (row == 1 && col == 0) //add a checkbox to cell(1,0)
+        /*if (row == 1 && col == 0) //add a checkbox to cell(1,0)
         {
             return Qt::Checked;
-        }
+        }*/
         break;
     }
     return QVariant();
@@ -135,6 +130,26 @@ Qt::ItemFlags AFR_TABLE_MODEL::flags(const QModelIndex & /*index*/) const
 
     // This will make all cells in the table editable.
     return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
+}
+
+// Load a .csv file into the gridData
+bool AFR_TABLE_MODEL::loadTable(QString csvfile)
+{
+    // Attempts to load the csvfile contents into the table.
+    if (loadCSV(csvfile, m_gridData))
+    {
+        // Get the row headers
+        for (int i = 1; i < m_gridData.length(); i++)
+        {
+            m_rowHeaders.append(m_gridData[i][0]);
+            m_gridData[i].removeAt(0);
+        }
+        // Get the col headers
+        m_colHeaders = m_gridData[0];
+        m_gridData.removeAt(0);
+        return true;
+    }
+    return false;
 }
 
 //===================================//

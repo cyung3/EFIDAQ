@@ -4,6 +4,7 @@
 #include "tmodels.h"
 #include "mainwindow.h"
 #include "utilities.h"
+#include "afrtable.h"
 #include <QTimer>
 #include <QModelIndex>
 #include <QMessageBox>
@@ -13,6 +14,7 @@
 #include <QDir>
 #include <QFile>
 
+// Constructor
 RUNTEST::RUNTEST(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::RUNTEST)
@@ -194,7 +196,7 @@ void RUNTEST::setDataLocked(bool yes)
     ui->DataBrowser->setReadOnly(yes);
 }
 
-// Function that runs everytime the time triggers.
+// Function that runs everytime the timer triggers.
 void RUNTEST::hitDataTimer()
 {
     // Not sure if there will be issues here if the serialreader happens to be
@@ -239,27 +241,26 @@ void RUNTEST::hitDataTimer()
             // Makes it only autoscroll if the verticalScrollBar is within 50 lines of the bottom.
             if (ui->DataBrowser->verticalScrollBar()->maximum() - ui->DataBrowser->verticalScrollBar()->value() <= 50)
                 ui->DataBrowser->verticalScrollBar()->setValue(ui->DataBrowser->verticalScrollBar()->maximum());
-        }
 
-        if (m_isplotting)
-        {
-            // Appends the xData and yData points
-            // Check is necessary to ensure index is within the range of data input.
-            if (m_xLabelIndex < indivFields.length() && m_yLabelIndex < indivFields.length())
+            if (m_isplotting)
             {
-                QString xstr = QString(indivFields[m_xLabelIndex]);
-                xstr.remove(QRegExp(QString("[\n\t\r]*")));
-                double xval = xstr.toDouble();
-                xData.append(xval);
+                // Appends the xData and yData points
+                // Check is necessary to ensure index is within the range of data input.
+                if (m_xLabelIndex < indivFields.length() && m_yLabelIndex < indivFields.length())
+                {
+                    QString xstr = QString(indivFields[m_xLabelIndex]);
+                    xstr.remove(QRegExp(QString("[\n\t\r]*")));
+                    double xval = xstr.toDouble();
+                    xData.append(xval);
 
-                QString ystr = QString(indivFields[m_yLabelIndex]);
-                ystr.remove(QRegExp(QString("[\n\t\r]*")));
-                double yval = ystr.toDouble();
-                yData.append(yval);
+                    QString ystr = QString(indivFields[m_yLabelIndex]);
+                    ystr.remove(QRegExp(QString("[\n\t\r]*")));
+                    double yval = ystr.toDouble();
+                    yData.append(yval);
+                }
             }
+            m_ndp++;
         }
-
-        m_ndp++;
     }
 
 
@@ -375,14 +376,16 @@ void RUNTEST::on_EndDCButton_clicked()
 // Activates whenever the Open AFR Table button is clicked.
 void RUNTEST::on_OpenAFRTableButton_clicked()
 {
-
+    // This window is set to delete automatically.
+    m_afrtable = new AFRTABLE;
+    m_afrtable->show();
 }
 
 // Add Data to the plot
 void RUNTEST::addData(QVector<double> xData, QVector<double> yData)
 {
     if (mw != nullptr)
-        mw->addData(xData,yData);
+        mw->addData(xData,yData, m_xLabel, m_yLabel);
 }
 
 // Activates whenever the Plot Data button is clicked.

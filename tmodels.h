@@ -14,6 +14,7 @@ class AFR_TABLE_MODEL : public QAbstractTableModel
     Q_OBJECT
 public:
     AFR_TABLE_MODEL(QObject *parent);
+    AFR_TABLE_MODEL(QObject *parent, QString filename);
     ~AFR_TABLE_MODEL();
 
     // Determines the number of rows in the table.
@@ -34,6 +35,7 @@ public:
     // Flags that change properties about specific cells such as which cells can be edited.
     Qt::ItemFlags flags(const QModelIndex & index) const ;
 
+    bool loadTable(QString filename);
 private:
     // holds text entered into the table cells
     QList<QList<QString>> m_gridData;

@@ -63,7 +63,7 @@ public:
   void setupDemo();
   void setupRealtimeDataDemo(QCustomPlot *customPlot);
   void setupPlayground(QCustomPlot *customPlot);
-  void addData(QVector<double> X, QVector<double> Y);
+  void addData(QVector<double> X, QVector<double> Y, QString xLabel = QString(), QString yLabel = QString());
   void setup(QCustomPlot *customPlot);
 
 private slots:

@@ -20,7 +20,7 @@ TESTSETUP::TESTSETUP(QWidget *parent) :
     // contains some basic functions that the program uses to construct the
     // columns and rows of the table. This is implemented in the "tmodels.h"
     // header.
-    afr_tm = new AFR_TABLE_MODEL(this);
+    afr_tm = new AFR_TABLE_MODEL(this, ":/AFR_TABLE.csv");
     ui->AFR_tableview->setModel(afr_tm);
     ui->AFR_tableview->show();
 }

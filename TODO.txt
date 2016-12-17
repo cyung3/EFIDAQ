@@ -2,7 +2,7 @@ List of items that are on the TODO list for the DAQ system
 
 SOLVED 1) Fix bug causing system to crash if data collection is stopped and then started again.
 2) Make QCustomPlot plotting have a toggle box for connecting data points by lines or not.
-3) Make button for opening the AFR Table during testing open a new window showing a full
+IN PROGRESS 3) Make button for opening the AFR Table during testing open a new window showing a full
     AFR Table. There should be a button that, when clicked, will instruct the arduino to
     update its onboard AFR table to have the values listed in the table in the program.
 4) Need to make the arduino synchronize the order of its data output to the order
@@ -38,3 +38,6 @@ SOLVED 18) Make the data view not try to scroll if the vertical scrollbar is cur
 20) When the data stream is unlocked and clicked at all, it needs to know that it needs to
     set the cursor back to the very bottom before writing any more data to it otherwise the
     data will be written to the wrong place.
+21) Needs to delete AFRTABLE window when the runtest window is closed.
+22) Need to make the plot display axis labels based on the data being plotted.
+23) REALLY NEED TO FIGURE OUT HOW TO PREVENT BAD BYTES FROM COMING THROUGH WHEN STARTING OR RESUMING DATA COLLECTION!!!!
