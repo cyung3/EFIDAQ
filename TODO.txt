@@ -41,3 +41,5 @@ SOLVED 18) Make the data view not try to scroll if the vertical scrollbar is cur
 21) Needs to delete AFRTABLE window when the runtest window is closed.
 22) Need to make the plot display axis labels based on the data being plotted.
 23) REALLY NEED TO FIGURE OUT HOW TO PREVENT BAD BYTES FROM COMING THROUGH WHEN STARTING OR RESUMING DATA COLLECTION!!!!
+IN PROGRESS 24) Need to implement a menu option that has a full list of signals that can be sent to the controller.
+25) Need to a the ability to view all the parameters stored on the Arduino. This should be a window.

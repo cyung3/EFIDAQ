@@ -28,56 +28,71 @@
 **  This is the example code for QCustomPlot.                                                              **
 **                                                                                                         **
 **  It demonstrates basic and some advanced capabilities of the widget. The interesting code is inside     **
-**  the "setup(...)Demo" functions of MainWindow.                                                          **
+**  the "setup(...)Demo" functions of PlotWindow.                                                          **
 **                                                                                                         **
 **  In order to see a demo in action, call the respective "setup(...)Demo" function inside the             **
-**  MainWindow constructor. Alternatively you may call setupDemo(i) where i is the index of the demo       **
-**  you want (for those, see MainWindow constructor comments). All other functions here are merely a       **
+**  PlotWindow constructor. Alternatively you may call setupDemo(i) where i is the index of the demo       **
+**  you want (for those, see PlotWindow constructor comments). All other functions here are merely a       **
 **  way to easily create screenshots of all demos for the website. I.e. a timer is set to successively     **
 **  setup all the demos and make a screenshot of the window area and save it in the ./screenshots          **
 **  directory.                                                                                             **
 **                                                                                                         **
 *************************************************************************************************************/
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef PLOTWINDOW_H
+#define PLOTWINDOW_H
 
 #include <QMainWindow>
 #include <QTimer>
+#include <QQueue>
+#include <QVector>
+#include <QTime>
+
+#include "wrappingqvector.h"
 #include "qcustomplot.h"
 
 namespace Ui {
-class MainWindow;
+class PlotWindow;
 }
 
 class RUNTEST;
 
-class MainWindow : public QMainWindow
+class PlotWindow : public QMainWindow
 {
   Q_OBJECT
   
 public:
-  explicit MainWindow(QWidget* parent = 0, RUNTEST* rparent = 0);
-  ~MainWindow();
-  
-  void setupDemo();
-  void setupRealtimeDataDemo(QCustomPlot *customPlot);
+  explicit PlotWindow(QWidget* parent = 0, RUNTEST* rparent = 0);
+  ~PlotWindow();
+
   void setupPlayground(QCustomPlot *customPlot);
   void addData(QVector<double> X, QVector<double> Y, QString xLabel = QString(), QString yLabel = QString());
   void setup(QCustomPlot *customPlot);
-
+  void setData(QVector<double> X, QVector<double> Y, QString xLabel, QString yLabel);
 private slots:
-  
+  void handleActionDataPointsTriggered();
+  void handleActionClearTriggered();
+  void handleActionConnectPointsTriggered(bool connect);
+  void handleActionSavePlotTriggered();
+  void handleActionFrameRateTriggered();
 private:
   void closeEvent(QCloseEvent *event);
 
-  Ui::MainWindow *ui;
+  Ui::PlotWindow *ui;
   QString demoName;
   QTimer dataTimer;
   QCPItemTracer *itemDemoPhaseTracer;
   int currentDemoIndex;
 
+  QTime* time;
+  unsigned long long int lastTime;
+  double secPerFrame;
+  int frameRate;
+  WrappingQVector<double> measuredFrameRate;
+
+  WrappingQVector<double> m_xData;
+  WrappingQVector<double> m_yData;
   RUNTEST* rparent;
 };
 
-#endif // MAINWINDOW_H
+#endif // PLOTWINDOW_H

@@ -20,10 +20,10 @@ SOURCES += main.cpp\
     runtest.cpp \
     utilities.cpp \
     qcustomplot.cpp \
-    mainwindow.cpp \
     serialreader.cpp \
     mainruntest.cpp \
-    afrtable.cpp
+    afrtable.cpp \
+    plotwindow.cpp
 
 HEADERS  += efidaq.h \
     testsetup.h \
@@ -31,17 +31,18 @@ HEADERS  += efidaq.h \
     runtest.h \
     utilities.h \
     qcustomplot.h \
-    mainwindow.h \
     serialreader.h \
     mainruntest.h \
-    afrtable.h
+    afrtable.h \
+    wrappingqvector.h \
+    plotwindow.h
 
 FORMS    += efidaq.ui \
     testsetup.ui \
     runtest.ui \
-    mainwindow.ui \
     mainruntest.ui \
-    afrtable.ui
+    afrtable.ui \
+    plotwindow.ui
 
 RESOURCES += \
     efidaq.qrc

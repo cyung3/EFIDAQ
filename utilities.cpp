@@ -142,3 +142,13 @@ void notify(QList<QList<QString>> lines)
     }
     notify(line);
 }
+
+double mean(QVector<double> in)
+{
+    double total = 0;
+    for (size_t i = 0; i < in.size(); i++)
+    {
+        total += in[i];
+    }
+    return total / in.size();
+}

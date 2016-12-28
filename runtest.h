@@ -4,13 +4,15 @@
 #include <QWidget>
 #include <QVector>
 #include <QByteArray>
+#include <QQueue>
+
 #include "tmodels.h"
 
 namespace Ui {
 class RUNTEST;
 }
 
-class MainWindow;
+class PlotWindow;
 class SERIALREADER;
 class AFRTABLE;
 
@@ -50,7 +52,7 @@ private:
 
     QTimer* m_dataRefrTimer;
     long long m_ndp;
-    MainWindow* mw;
+    PlotWindow* pw;
     SERIALREADER* m_serialReader;
     QByteArray* m_bytebuf;
 

@@ -2,7 +2,7 @@
 #include "ui_runtest.h"
 #include "serialreader.h"
 #include "tmodels.h"
-#include "mainwindow.h"
+#include "plotwindow.h"
 #include "utilities.h"
 #include "afrtable.h"
 #include <QTimer>
@@ -28,7 +28,7 @@ RUNTEST::RUNTEST(QWidget *parent) :
     // Initialize as not plotting
     m_isplotting = false;
     // Initialize pointer to plotting window
-    mw = nullptr;
+    pw = nullptr;
 
     // Locks the data stream from being scrolled through or edited.
     ui->DataBrowser->setDisabled(true);
@@ -109,8 +109,8 @@ RUNTEST::~RUNTEST()
     delete m_dataRefrTimer;
     delete m_bytebuf;
 
-    if (mw != nullptr)
-        delete mw;
+    if (pw != nullptr)
+        delete pw;
 
     //notify("Deleted RUNTEST");
 }
@@ -119,8 +119,8 @@ RUNTEST::~RUNTEST()
 void RUNTEST::stopPlotting()
 {
     m_isplotting = false;
-    delete mw;
-    mw = nullptr;
+    delete pw;
+    pw = nullptr;
 }
 
 // Saves the current data in the DataBrowser.
@@ -384,17 +384,20 @@ void RUNTEST::on_OpenAFRTableButton_clicked()
 // Add Data to the plot
 void RUNTEST::addData(QVector<double> xData, QVector<double> yData)
 {
-    if (mw != nullptr)
-        mw->addData(xData,yData, m_xLabel, m_yLabel);
+    if (pw != nullptr)
+    {
+        //mw->addData(xData, yData, m_xLabel, m_yLabel);
+        pw->setData(xData, yData, m_xLabel, m_yLabel);
+    }
 }
 
 // Activates whenever the Plot Data button is clicked.
 void RUNTEST::on_PlotDataButton_clicked()
 {
     m_isplotting = true;
-    if (mw == nullptr)
-        mw = new MainWindow(nullptr, this);
-    mw->show();
+    if (pw == nullptr)
+        pw = new PlotWindow(nullptr, this);
+    pw->show();
 }
 
 // Activates whenever the get serial port button has been clicked.

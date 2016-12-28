@@ -36,8 +36,41 @@
     <addaction name="actionClear"/>
     <addaction name="actionLocked"/>
    </widget>
+   <widget class="QMenu" name="menuSignals">
+    <property name="title">
+     <string>Signals</string>
+    </property>
+    <widget class="QMenu" name="menuSYNCHRONIZE">
+     <property name="title">
+      <string>SYNCHRONIZE</string>
+     </property>
+     <addaction name="actionALL"/>
+     <addaction name="actionAXIS_LABELS"/>
+     <addaction name="actionPARAMETERS"/>
+    </widget>
+    <widget class="QMenu" name="menuSET_PARAMETER">
+     <property name="title">
+      <string>SET_PARAMETER</string>
+     </property>
+     <addaction name="actionMAX_SAMPLE_RATE"/>
+     <addaction name="actionCOLD_START_VALUE"/>
+     <addaction name="actionCUTOFF_RPM"/>
+    </widget>
+    <addaction name="actionRESET"/>
+    <addaction name="menuSYNCHRONIZE"/>
+    <addaction name="menuSET_PARAMETER"/>
+   </widget>
+   <widget class="QMenu" name="menuParameters">
+    <property name="title">
+     <string>Parameters</string>
+    </property>
+    <addaction name="actionView"/>
+    <addaction name="actionEdit"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuDataStream"/>
+   <addaction name="menuParameters"/>
+   <addaction name="menuSignals"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionSave_As">
@@ -62,6 +95,51 @@
    </property>
    <property name="text">
     <string>Locked</string>
+   </property>
+  </action>
+  <action name="actionRESET">
+   <property name="text">
+    <string>RESET</string>
+   </property>
+  </action>
+  <action name="actionALL">
+   <property name="text">
+    <string>ALL</string>
+   </property>
+  </action>
+  <action name="actionAXIS_LABELS">
+   <property name="text">
+    <string>AXIS_LABELS</string>
+   </property>
+  </action>
+  <action name="actionPARAMETERS">
+   <property name="text">
+    <string>PARAMETERS</string>
+   </property>
+  </action>
+  <action name="actionMAX_SAMPLE_RATE">
+   <property name="text">
+    <string>MAX_SAMPLE_RATE</string>
+   </property>
+  </action>
+  <action name="actionCOLD_START_VALUE">
+   <property name="text">
+    <string>COLD_START_VALUE</string>
+   </property>
+  </action>
+  <action name="actionCUTOFF_RPM">
+   <property name="text">
+    <string>CUTOFF_RPM</string>
+   </property>
+  </action>
+  <action name="actionView">
+   <property name="text">
+    <string>View</string>
+   </property>
+  </action>
+  <action name="actionEdit">
+   <property name="text">
+    <string>Edit</string>
    </property>
   </action>
  </widget>
