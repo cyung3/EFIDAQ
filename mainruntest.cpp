@@ -2,10 +2,13 @@
 #include "ui_mainruntest.h"
 #include "runtest.h"
 #include "utilities.h"
+#include "qformdialog.h"
+
 #include <QMessageBox>
 #include <QAbstractButton>
 #include <QCloseEvent>
 #include <QPushButton>
+#include <QSet>
 
 MAINRUNTEST::MAINRUNTEST(QWidget *parent) :
     QMainWindow(parent),
@@ -31,6 +34,9 @@ MAINRUNTEST::MAINRUNTEST(QWidget *parent) :
 
     // Connect Locked menu checkbox action to the dataLockChanged function
     connect(ui->actionLocked, SIGNAL(toggled(bool)), SLOT(dataLockChanged(bool)));
+
+    // Connect the parameter edit menu action to its handler function.
+    connect(ui->actionEdit, SIGNAL(triggered()), SLOT(handleParametersEditTriggered()));
 }
 
 MAINRUNTEST::~MAINRUNTEST()
@@ -129,4 +135,21 @@ void MAINRUNTEST::closeEvent(QCloseEvent *event)
     {
         event->ignore();
     }
+}
+
+void MAINRUNTEST::handleParametersEditTriggered()
+{
+    QFormDialog pform(this);
+    pform.addPair(QString("a"), QString("b"));
+    pform.addPair(QString("c"), QString("d"));
+    pform.addPair(QString("e"), QString("f"));
+    pform.addPair(QString("g"), QString("h"));
+    pform.exec();
+    QSet<std::pair<QString, QString>> results = pform.getPairs();
+    QFormDialog pform2(this);
+    for (auto it = results.begin(); it != results.end(); it++)
+    {
+        pform2.addPair(*it);
+    }
+    pform2.exec();
 }

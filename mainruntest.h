@@ -22,6 +22,7 @@ private slots:
     bool saveData();
     bool clearData();
     void dataLockChanged(bool checked);
+    void handleParametersEditTriggered();
 
 private:
     Ui::MAINRUNTEST *ui;

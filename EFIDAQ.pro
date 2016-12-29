@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     serialreader.cpp \
     mainruntest.cpp \
     afrtable.cpp \
-    plotwindow.cpp
+    plotwindow.cpp \
+    qformdialog.cpp
 
 HEADERS  += efidaq.h \
     testsetup.h \
@@ -35,14 +36,16 @@ HEADERS  += efidaq.h \
     mainruntest.h \
     afrtable.h \
     wrappingqvector.h \
-    plotwindow.h
+    plotwindow.h \
+    qformdialog.h
 
 FORMS    += efidaq.ui \
     testsetup.ui \
     runtest.ui \
     mainruntest.ui \
     afrtable.ui \
-    plotwindow.ui
+    plotwindow.ui \
+    qformdialog.ui
 
 RESOURCES += \
     efidaq.qrc
