@@ -4,7 +4,6 @@
 #include <QWidget>
 #include <QVector>
 #include <QByteArray>
-#include <QQueue>
 
 #include "tmodels.h"
 
@@ -27,7 +26,7 @@ public:
     int saveData();
     int clearData();
     void setDataLocked(bool yes = true);
-    void stopPlotting();
+    void stopPlotting(PlotWindow* sender);
 public slots:
     void hitDataTimer();
     void xItemChanged(QModelIndex xindex);
@@ -43,7 +42,7 @@ private slots:
     void on_setSerialPortButton_clicked();
 
 private:
-    void addData(QVector<double> xData, QVector<double> yData);
+    void addData();
 
     Ui::RUNTEST *ui;
     LIST_CHOICES_MODEL* m_xlmodel;
@@ -51,17 +50,16 @@ private:
     AFRTABLE* m_afrtable;
 
     QTimer* m_dataRefrTimer;
-    long long m_ndp;
-    PlotWindow* pw;
+    unsigned long long int m_ndp;
+    QVector<PlotWindow*> pw;
     SERIALREADER* m_serialReader;
     QByteArray* m_bytebuf;
-
-    bool m_isplotting;
-    QString m_xLabel;
-    int m_xLabelIndex;
-    QString m_yLabel;
-    int m_yLabelIndex;
     int expectedNumFields;
+
+    QVector<QVector<double>> m_xData;
+    QVector<QVector<double>> m_yData;
+    std::pair<QString, int> m_xLabel;
+    std::pair<QString, int> m_yLabel;
 };
 
 #endif // RUNTEST_H

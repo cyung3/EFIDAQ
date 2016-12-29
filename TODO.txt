@@ -1,7 +1,7 @@
 List of items that are on the TODO list for the DAQ system
 
 SOLVED 1) Fix bug causing system to crash if data collection is stopped and then started again.
-2) Make QCustomPlot plotting have a toggle box for connecting data points by lines or not.
+SOLVED 2) Make QCustomPlot plotting have a toggle box for connecting data points by lines or not.
 IN PROGRESS 3) Make button for opening the AFR Table during testing open a new window showing a full
     AFR Table. There should be a button that, when clicked, will instruct the arduino to
     update its onboard AFR table to have the values listed in the table in the program.
@@ -10,17 +10,17 @@ IN PROGRESS 3) Make button for opening the AFR Table during testing open a new w
     This can be done by having a signal sent to the arduino when the start data collection
     button is clicked that has the arduino send a quick .csv message to the DAQ system
     which can be loaded into the xlistview and ylistview before starting data collection.
-5) Make QCustomPlot window have an option which allows the user to dynamically choose
+SOLVED 5) Make QCustomPlot window have an option which allows the user to dynamically choose
     how many points to keep on the plot at a time.
 6) Make testsetup window able to communicate parameters and the AFR Table values to the
     arduino via a button that can be clicked.
 SOLVED 7) Need to implement a button on the runtest window that can clear out the data currently
     held on the DataViewer.
-8) Need to rename the "mainwindow" class and filenames for QCustomPlot stuff to something
+SOLVED 8) Need to rename the "mainwindow" class and filenames for QCustomPlot stuff to something
     meaningful.
 SOLVED 9) Need to implement a button for saving the data currently held in the dataview to a .csv file.
 10) Need a button that can send a signal to the Arduino to reset itself.
-11) Need to change all the windows to mainwindows in order to make use of the increased functionality.
+IN PROGRESS 11) Need to change all the windows to mainwindows in order to make use of the increased functionality.
 12) If the data collection is repeatedly started and stopped, bad bytes come through. Need
      to find a way to get rid of the bad bytes before they are printed to the screen.
 13) Need to make input filter toggle-able. This is the filter that only accepts input that has
@@ -34,12 +34,12 @@ SOLVED 14) Need to reimplement closeEvent for RUNTEST window in order to ask if 
 16) Need to make it so that clearing the data stream when it is empty does nothing.
 17) Need to specify the file types it can save as when saving. ex: *.csv, *.txt etc...
 SOLVED 18) Make the data view not try to scroll if the vertical scrollbar is currently being dragged.
-19) Need to be able to lock or unlock the data view for edits.
+SOLVED 19) Need to be able to lock or unlock the data view for edits.
 20) When the data stream is unlocked and clicked at all, it needs to know that it needs to
     set the cursor back to the very bottom before writing any more data to it otherwise the
     data will be written to the wrong place.
 21) Needs to delete AFRTABLE window when the runtest window is closed.
-22) Need to make the plot display axis labels based on the data being plotted.
+SOLVED 22) Need to make the plot display axis labels based on the data being plotted.
 23) REALLY NEED TO FIGURE OUT HOW TO PREVENT BAD BYTES FROM COMING THROUGH WHEN STARTING OR RESUMING DATA COLLECTION!!!!
 IN PROGRESS 24) Need to implement a menu option that has a full list of signals that can be sent to the controller.
 25) Need to a the ability to view all the parameters stored on the Arduino. This should be a window.

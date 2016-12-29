@@ -25,11 +25,6 @@ RUNTEST::RUNTEST(QWidget *parent) :
     // Initialize the number of data points collected as 0.
     m_ndp = 0;
 
-    // Initialize as not plotting
-    m_isplotting = false;
-    // Initialize pointer to plotting window
-    pw = nullptr;
-
     // Locks the data stream from being scrolled through or edited.
     ui->DataBrowser->setDisabled(true);
 
@@ -40,10 +35,10 @@ RUNTEST::RUNTEST(QWidget *parent) :
     connect(ui->xlistView, SIGNAL(activated(QModelIndex)), SLOT(xItemChanged(QModelIndex)));
     // Initializes the default axes labels by taking the elements at the first index
     // in the model. If no element exists, defaults to an empty label.
-    m_xLabelIndex = 0;
-    if (!m_xlmodel->getItemAt(0, m_xLabel))
+    m_xLabel.second = 0;
+    if (!m_xlmodel->getItemAt(0, m_xLabel.first))
     {
-        m_xLabel = "";
+        m_xLabel.first = "";
     }
 
     // Sets the ylistView to the LIST_CHOICES_MODEL.
@@ -53,10 +48,10 @@ RUNTEST::RUNTEST(QWidget *parent) :
     connect(ui->ylistView, SIGNAL(activated(QModelIndex)), SLOT(yItemChanged(QModelIndex)));
     // Initializes the default axes labels by taking the elements at the first index
     // in the model. If no element exists, defaults to an empty label.
-    m_yLabelIndex = 0;
-    if (!m_ylmodel->getItemAt(0, m_yLabel))
+    m_yLabel.second = 0;
+    if (!m_ylmodel->getItemAt(0, m_yLabel.first))
     {
-        m_yLabel = "";
+        m_yLabel.first = "";
     }
     expectedNumFields = m_ylmodel->rowCount();
 
@@ -109,18 +104,38 @@ RUNTEST::~RUNTEST()
     delete m_dataRefrTimer;
     delete m_bytebuf;
 
-    if (pw != nullptr)
-        delete pw;
+    for (auto it = pw.begin(); it != pw.end();)
+    {
+        delete *it;
+        it = pw.erase(it);
+    }
 
     //notify("Deleted RUNTEST");
 }
 
 // Stops plotting
-void RUNTEST::stopPlotting()
+void RUNTEST::stopPlotting(PlotWindow* sender)
 {
-    m_isplotting = false;
-    delete pw;
-    pw = nullptr;
+    for (auto it = pw.begin(); it != pw.end();)
+    {
+        if (*it == sender)
+        {
+            delete *it;
+            it = pw.erase(it);
+            m_xData.pop_back();
+            m_yData.pop_back();
+        }
+        else
+        {
+             it++;
+        }
+    }
+    size_t count = 0;
+    for (auto it = pw.begin(); it != pw.end(); it++)
+    {
+        (*it)->setWindowTitle(QString("Plot ID: %1").arg(count));
+        count++;
+    }
 }
 
 // Saves the current data in the DataBrowser.
@@ -223,10 +238,6 @@ void RUNTEST::hitDataTimer()
     QList<QByteArray> indivDataPoints = data.split(newline);
     QList<QByteArray> indivFields;
 
-    // Initialize data lists for the x and y axes respectively.
-    QVector<double> xData;
-    QVector<double> yData;
-
     // Loops through the individual data points and prints them to the screen one at a time.
     for (int i = 0; i < indivDataPoints.length()-1; i++)
     {
@@ -242,21 +253,21 @@ void RUNTEST::hitDataTimer()
             if (ui->DataBrowser->verticalScrollBar()->maximum() - ui->DataBrowser->verticalScrollBar()->value() <= 50)
                 ui->DataBrowser->verticalScrollBar()->setValue(ui->DataBrowser->verticalScrollBar()->maximum());
 
-            if (m_isplotting)
+            // Appends the xData and yData points
+            // Check is necessary to ensure index is within the range of data input.
+            for (size_t i = 0; i < pw.size(); i++)
             {
-                // Appends the xData and yData points
-                // Check is necessary to ensure index is within the range of data input.
-                if (m_xLabelIndex < indivFields.length() && m_yLabelIndex < indivFields.length())
+                if (pw[i]->getXLabel().second < indivFields.length() && pw[i]->getYLabel().second < indivFields.length())
                 {
-                    QString xstr = QString(indivFields[m_xLabelIndex]);
+                    QString xstr = QString(indivFields[pw[i]->getXLabel().second]);
                     xstr.remove(QRegExp(QString("[\n\t\r]*")));
                     double xval = xstr.toDouble();
-                    xData.append(xval);
+                    m_xData[i].append(xval);
 
-                    QString ystr = QString(indivFields[m_yLabelIndex]);
+                    QString ystr = QString(indivFields[pw[i]->getYLabel().second]);
                     ystr.remove(QRegExp(QString("[\n\t\r]*")));
                     double yval = ystr.toDouble();
-                    yData.append(yval);
+                    m_yData[i].append(yval);
                 }
             }
             m_ndp++;
@@ -279,13 +290,9 @@ void RUNTEST::hitDataTimer()
 
     // Update the LCD with the total sample number
     ui->NumDPlcd->display((int) m_ndp);
-\
 
     // Update charts
-    if (m_isplotting && !xData.isEmpty() && !yData.isEmpty())
-    {
-        addData(xData, yData);
-    }
+    addData();
 }
 
 // Activates whenever the sampleRateSlider is moved.
@@ -382,22 +389,26 @@ void RUNTEST::on_OpenAFRTableButton_clicked()
 }
 
 // Add Data to the plot
-void RUNTEST::addData(QVector<double> xData, QVector<double> yData)
+void RUNTEST::addData()
 {
-    if (pw != nullptr)
+    for (unsigned int i = 0; i < pw.size(); i++)
     {
-        //mw->addData(xData, yData, m_xLabel, m_yLabel);
-        pw->setData(xData, yData, m_xLabel, m_yLabel);
+        pw[i]->addData(m_xData[i], m_yData[i]);
+        m_xData[i].clear();
+        m_yData[i].clear();
     }
 }
 
 // Activates whenever the Plot Data button is clicked.
 void RUNTEST::on_PlotDataButton_clicked()
 {
-    m_isplotting = true;
-    if (pw == nullptr)
-        pw = new PlotWindow(nullptr, this);
-    pw->show();
+    m_xData.push_back(QVector<double>());
+    m_yData.push_back(QVector<double>());
+    pw.push_back(new PlotWindow(nullptr, this));
+    pw[pw.size() - 1]->setWindowTitle(QString("Plot ID: %1").arg(pw.size() - 1));
+    pw[pw.size() - 1]->setXLabel(m_xLabel);
+    pw[pw.size() - 1]->setYLabel(m_yLabel);
+    pw[pw.size() - 1]->show();
 }
 
 // Activates whenever the get serial port button has been clicked.
@@ -410,8 +421,8 @@ void RUNTEST::on_setSerialPortButton_clicked()
 void RUNTEST::xItemChanged(QModelIndex xindex)
 {
     // Change string for x item
-    m_xlmodel->getItemAt(xindex.row(), m_xLabel);
-    m_xLabelIndex = xindex.row();
+    m_xlmodel->getItemAt(xindex.row(), m_xLabel.first);
+    m_xLabel.second = xindex.row();
     //ui->DataBrowser->append(m_xLabel);
 }
 
@@ -419,7 +430,7 @@ void RUNTEST::xItemChanged(QModelIndex xindex)
 void RUNTEST::yItemChanged(QModelIndex yindex)
 {
     // change string for y item
-    m_ylmodel->getItemAt(yindex.row(), m_yLabel);
-    m_yLabelIndex = yindex.row();
+    m_ylmodel->getItemAt(yindex.row(), m_yLabel.first);
+    m_yLabel.second = yindex.row();
     //ui->DataBrowser->append(m_yLabel);
 }

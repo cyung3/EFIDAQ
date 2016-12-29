@@ -58,7 +58,6 @@ PlotWindow::PlotWindow(QWidget* parent, RUNTEST* rparent) :
   measuredFrameRate(30)
 {
   ui->setupUi(this);
-  //setGeometry(400, 250, 542, 390);
   
   // Needed in order to set a flag in RUNTEST if the plotting window
   // is abruptly closed.
@@ -72,8 +71,6 @@ PlotWindow::PlotWindow(QWidget* parent, RUNTEST* rparent) :
   connect(ui->actionFrame_Rate, SIGNAL(triggered()), SLOT(handleActionFrameRateTriggered()));
 
   setup(ui->customPlot);
-  QString name = "Dynamic Plot";
-  setWindowTitle(name);
   statusBar()->clearMessage();
   ui->customPlot->replot();
 
@@ -88,49 +85,10 @@ PlotWindow::PlotWindow(QWidget* parent, RUNTEST* rparent) :
   //QTimer::singleShot(1500, this, SLOT(allScreenShots()));
   //QTimer::singleShot(4000, this, SLOT(screenShot()));
 }
-void PlotWindow::addData(QVector<double> X, QVector<double> Y, QString xLabel, QString yLabel)
+
+void PlotWindow::addData(QVector<double>& X, QVector<double>& Y)
 {
-    if (X.isEmpty() || Y.isEmpty())
-        return;
-
-    // add data to lines:
-    ui->customPlot->graph(0)->addData(X, Y);
-
-    // add axis labels
-    ui->customPlot->xAxis->setLabel(xLabel);
-    ui->customPlot->yAxis->setLabel(yLabel);
-
-    //std::sort(X.begin(), X.end());
-
-    // rescale both axes to fit the current data
-    ui->customPlot->graph(0)->rescaleAxes();
-    bool foundRange = false;
-    QCPRange xrange = ui->customPlot->graph(0)->getKeyRange(foundRange);
-    if (foundRange)
-    {
-        ui->customPlot->xAxis->setRange(xrange);
-    }
-
-    foundRange = false;
-    QCPRange yrange = ui->customPlot->graph(0)->getValueRange(foundRange);
-    if (foundRange)
-        ui->customPlot->yAxis->setRange(yrange);
-
-    // make key axis range scroll with the data (at a constant range size of 8):
-    //ui->customPlot->xAxis->setRange(key, 8, Qt::AlignRight);
-
-    ui->customPlot->replot();
-
-    // Only keep 100 data points at a time.
-    if (ui->customPlot->graph(0)->dataCount() > 100)
-    {
-        ui->customPlot->graph(0)->data()->clear();
-    }
-}
-
-void PlotWindow::setData(QVector<double> X, QVector<double> Y, QString xLabel, QString yLabel)
-{
-    if (X.isEmpty() || Y.isEmpty())
+    if (X.isEmpty() || Y.isEmpty() || X.size() != Y.size())
         return;
 
     m_xData.push(X);
@@ -143,11 +101,6 @@ void PlotWindow::setData(QVector<double> X, QVector<double> Y, QString xLabel, Q
         ui->customPlot->graph(0)->setData(m_xData, m_yData);
 
         lastTime = time->elapsed();
-
-        // add axis labels
-        ui->customPlot->xAxis->setLabel(xLabel);
-        ui->customPlot->yAxis->setLabel(yLabel);
-
         //std::sort(X.begin(), X.end());
 
         // rescale both axes to fit the current data
@@ -172,6 +125,7 @@ void PlotWindow::setData(QVector<double> X, QVector<double> Y, QString xLabel, Q
         double measure = mean(measuredFrameRate);
         ui->statusBar->showMessage(QString("Measured Frame Rate: %1").arg(measure));
         measuredFrameRate.setMaxSize((int) measure);
+
         // make key axis range scroll with the data (at a constant range size of 8):
         //ui->customPlot->xAxis->setRange(key, 8, Qt::AlignRight);
     }
@@ -213,12 +167,13 @@ void PlotWindow::setupPlayground(QCustomPlot *customPlot)
 void PlotWindow::closeEvent(QCloseEvent *event)
 {
     event->accept();
-    rparent->stopPlotting();
+    rparent->stopPlotting(this);
 }
 
 PlotWindow::~PlotWindow()
 {
-  delete ui;
+    delete ui;
+    delete time;
 }
 
 void PlotWindow::handleActionDataPointsTriggered()
@@ -279,9 +234,27 @@ void PlotWindow::handleActionFrameRateTriggered()
     secPerFrame = 1.0 / frameRate;
 }
 
+void PlotWindow::setXLabel(std::pair<QString, int> xLabel)
+{
+    m_xLabel = xLabel;
+    ui->customPlot->xAxis->setLabel(xLabel.first);
+}
 
+void PlotWindow::setYLabel(std::pair<QString, int> yLabel)
+{
+    m_yLabel = yLabel;
+    ui->customPlot->yAxis->setLabel(yLabel.first);
+}
 
+const std::pair<QString, int>& PlotWindow::getXLabel() const
+{
+    return m_xLabel;
+}
 
+const std::pair<QString, int>& PlotWindow::getYLabel() const
+{
+    return m_yLabel;
+}
 
 
 

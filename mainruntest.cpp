@@ -12,6 +12,7 @@ MAINRUNTEST::MAINRUNTEST(QWidget *parent) :
     ui(new Ui::MAINRUNTEST)
 {
     ui->setupUi(this);
+    setWindowTitle(QString("EFI Data Acquisition System"));
 
     // Delete when closed
     this->setAttribute(Qt::WA_DeleteOnClose, true);

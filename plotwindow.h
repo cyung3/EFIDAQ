@@ -66,9 +66,13 @@ public:
   ~PlotWindow();
 
   void setupPlayground(QCustomPlot *customPlot);
-  void addData(QVector<double> X, QVector<double> Y, QString xLabel = QString(), QString yLabel = QString());
+  void addData(QVector<double>& X, QVector<double>& Y);
   void setup(QCustomPlot *customPlot);
-  void setData(QVector<double> X, QVector<double> Y, QString xLabel, QString yLabel);
+
+  void setXLabel(std::pair<QString, int> xLabel);
+  void setYLabel(std::pair<QString, int> yLabel);
+  const std::pair<QString, int>& getXLabel() const;
+  const std::pair<QString, int>& getYLabel() const;
 private slots:
   void handleActionDataPointsTriggered();
   void handleActionClearTriggered();
@@ -79,10 +83,7 @@ private:
   void closeEvent(QCloseEvent *event);
 
   Ui::PlotWindow *ui;
-  QString demoName;
   QTimer dataTimer;
-  QCPItemTracer *itemDemoPhaseTracer;
-  int currentDemoIndex;
 
   QTime* time;
   unsigned long long int lastTime;
@@ -92,6 +93,8 @@ private:
 
   WrappingQVector<double> m_xData;
   WrappingQVector<double> m_yData;
+  std::pair<QString, int> m_xLabel;
+  std::pair<QString, int> m_yLabel;
   RUNTEST* rparent;
 };
 

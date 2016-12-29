@@ -26,4 +26,6 @@ void notify(QList<QList<QString>> msg);
 
 double mean(QVector<double> in);
 
+
+
 #endif // UTILITIES_H
