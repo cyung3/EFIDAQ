@@ -7,21 +7,21 @@ template <typename T> class WrappingQVector
         : public QVector<T>
 {
 public:
-    WrappingQVector(size_t maxSize);
+    WrappingQVector(int maxSize);
 
     void push(QVector<T> in);
     void push(T in);
     void insert(QVector<T> in);
     void clear();
-    size_t maxSize() const;
-    void setMaxSize(size_t maxSize);
+    int maxSize() const;
+    void setMaxSize(int maxSize);
 private:
-    size_t m_maxSize;
-    size_t pos;
+    int m_maxSize;
+    int pos;
 };
 
 template<typename T>
-WrappingQVector<T>::WrappingQVector(size_t maxSize)
+WrappingQVector<T>::WrappingQVector(int maxSize)
 {
     m_maxSize = maxSize;
     pos = 0;
@@ -30,7 +30,7 @@ WrappingQVector<T>::WrappingQVector(size_t maxSize)
 template<typename T>
 void WrappingQVector<T>::push(QVector<T> in)
 {
-    for (size_t i = 0; i < in.size(); i++)
+    for (int i = 0; i < in.size(); i++)
     {
         if (size() < maxSize() && pos == 0)
         {
@@ -108,13 +108,13 @@ void WrappingQVector<T>::clear()
 }
 
 template<typename T>
-size_t WrappingQVector<T>::maxSize() const
+int WrappingQVector<T>::maxSize() const
 {
     return m_maxSize;
 }
 
 template<typename T>
-void WrappingQVector<T>::setMaxSize(size_t maxSize)
+void WrappingQVector<T>::setMaxSize(int maxSize)
 {
     m_maxSize = maxSize;
 }

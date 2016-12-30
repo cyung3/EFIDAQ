@@ -17,7 +17,9 @@ public:
     MAINRUNTEST(QWidget *parent = 0);
     ~MAINRUNTEST();
 
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent* event);
+    void resizeEvent(QResizeEvent* event);
+    void setResizeable(bool resizeable);
 private slots:
     bool saveData();
     bool clearData();

@@ -43,3 +43,5 @@ SOLVED 22) Need to make the plot display axis labels based on the data being plo
 23) REALLY NEED TO FIGURE OUT HOW TO PREVENT BAD BYTES FROM COMING THROUGH WHEN STARTING OR RESUMING DATA COLLECTION!!!!
 IN PROGRESS 24) Need to implement a menu option that has a full list of signals that can be sent to the controller.
 25) Need to a the ability to view all the parameters stored on the Arduino. This should be a window.
+26) Need to be able to close Air to Fuel Ratio Table upon Runtest window closing.
+27) Need to catch the resize window event in order to prevent it from happening while data is being collected.

@@ -10,6 +10,7 @@ QFormDialog::QFormDialog(QWidget *parent) :
     ui(new Ui::QFormDialog)
 {
     ui->setupUi(this);
+    setWindowIcon(QIcon(":/SupermileageLogo.png"));
 
     connect(ui->okButton, SIGNAL(clicked(bool)), SLOT(handleOkButtonClicked(bool)));
     connect(ui->cancelButton, SIGNAL(clicked(bool)), SLOT(handleCancelButtonClicked(bool)));

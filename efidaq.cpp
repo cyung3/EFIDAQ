@@ -12,6 +12,7 @@ EFIDAQ::EFIDAQ(QWidget *parent) :
     // then the window will not be initialized with the traits
     // determined in the ".ui" file associated with this window.
     ui->setupUi(this);
+    setWindowIcon(QIcon(":/SupermileageLogo.png"));
 
     ts = nullptr;
 }

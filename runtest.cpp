@@ -5,6 +5,8 @@
 #include "plotwindow.h"
 #include "utilities.h"
 #include "afrtable.h"
+#include "mainruntest.h"
+
 #include <QTimer>
 #include <QModelIndex>
 #include <QMessageBox>
@@ -15,18 +17,24 @@
 #include <QFile>
 
 // Constructor
-RUNTEST::RUNTEST(QWidget *parent) :
+RUNTEST::RUNTEST(MAINRUNTEST* mrtparent, QWidget* parent) :
     QWidget(parent),
     ui(new Ui::RUNTEST)
 {
     // Sets up the window to look like its ".ui" file.
     ui->setupUi(this);
 
+    // Set the MAINRUNTEST parent
+    this->mrtparent = mrtparent;
+
     // Initialize the number of data points collected as 0.
     m_ndp = 0;
 
     // Locks the data stream from being scrolled through or edited.
     ui->DataBrowser->setDisabled(true);
+
+    // Set up the syntax highlighter for the DataBrowser
+    highlighter = new Highlighter(ui->DataBrowser->document());
 
     // Sets the xlistView to the LIST_CHOICES_MODEL.
     m_xlmodel = new LIST_CHOICES_MODEL(this);
@@ -87,6 +95,10 @@ RUNTEST::RUNTEST(QWidget *parent) :
     m_serialReader = new SERIALREADER(this);
     ui->serialPortNameLabel->setText(m_serialReader->portName());
 
+    // Allow the serial reader to send a stop collection signal in the event of
+    // an abrupt connection break.
+    connect(m_serialReader, SIGNAL(stopCollecting()), SLOT(on_EndDCButton_clicked()));
+
     // Initialize the byte buffer for serial input
     m_bytebuf = new QByteArray;
 }
@@ -103,6 +115,7 @@ RUNTEST::~RUNTEST()
     delete m_ylmodel;
     delete m_dataRefrTimer;
     delete m_bytebuf;
+    delete highlighter;
 
     for (auto it = pw.begin(); it != pw.end();)
     {
@@ -248,6 +261,7 @@ void RUNTEST::hitDataTimer()
         if (indivFields.length() == expectedNumFields)
         {
             ui->DataBrowser->insertPlainText(QString(indivDataPoints[i]));
+            // Try to get some syntax highlighting in here???
 
             // Makes it only autoscroll if the verticalScrollBar is within 50 lines of the bottom.
             if (ui->DataBrowser->verticalScrollBar()->maximum() - ui->DataBrowser->verticalScrollBar()->value() <= 50)
@@ -255,7 +269,7 @@ void RUNTEST::hitDataTimer()
 
             // Appends the xData and yData points
             // Check is necessary to ensure index is within the range of data input.
-            for (size_t i = 0; i < pw.size(); i++)
+            for (int i = 0; i < pw.size(); i++)
             {
                 if (pw[i]->getXLabel().second < indivFields.length() && pw[i]->getYLabel().second < indivFields.length())
                 {
@@ -342,6 +356,11 @@ void RUNTEST::on_StartDCButton_clicked()
 
         // Needs to make sure the end data collection button is activated
         ui->EndDCButton->setDisabled(false);
+
+        // Resizing the window while data is being collected can lag the system
+        // dramatically. Until a better solution can be determined, this will
+        // prevent the window from being resized while data is being collected.
+        mrtparent->setResizeable(false);
     }
     else
     {
@@ -373,6 +392,9 @@ void RUNTEST::on_EndDCButton_clicked()
 
         // Clear out the byte buffer
         m_bytebuf->clear();
+
+        // Releases the lock on window resizing.
+        mrtparent->setResizeable(true);
     }
     else
     {
@@ -391,7 +413,7 @@ void RUNTEST::on_OpenAFRTableButton_clicked()
 // Add Data to the plot
 void RUNTEST::addData()
 {
-    for (unsigned int i = 0; i < pw.size(); i++)
+    for (int i = 0; i < pw.size(); i++)
     {
         pw[i]->addData(m_xData[i], m_yData[i]);
         m_xData[i].clear();
@@ -433,4 +455,10 @@ void RUNTEST::yItemChanged(QModelIndex yindex)
     m_ylmodel->getItemAt(yindex.row(), m_yLabel.first);
     m_yLabel.second = yindex.row();
     //ui->DataBrowser->append(m_yLabel);
+}
+
+// Returns true if currently collecting data.
+bool RUNTEST::isCollectingData() const
+{
+    return m_dataRefrTimer->isActive();
 }

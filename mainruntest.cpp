@@ -9,6 +9,7 @@
 #include <QCloseEvent>
 #include <QPushButton>
 #include <QSet>
+#include <QSizePolicy>
 
 MAINRUNTEST::MAINRUNTEST(QWidget *parent) :
     QMainWindow(parent),
@@ -16,12 +17,13 @@ MAINRUNTEST::MAINRUNTEST(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle(QString("EFI Data Acquisition System"));
+    setWindowIcon(QIcon(":/SupermileageLogo.png"));
 
     // Delete when closed
     this->setAttribute(Qt::WA_DeleteOnClose, true);
 
     // Create the RUNTEST widget.
-    rt = new RUNTEST();
+    rt = new RUNTEST(this, this);
 
     // Set the RUNTEST widget as the central widget for the MAINRUNTEST object.
     setCentralWidget(rt);
@@ -100,7 +102,7 @@ void MAINRUNTEST::closeEvent(QCloseEvent *event)
     msgbox.setText("Would you like to save the current data before exiting?");
     QAbstractButton* a = msgbox.addButton(QMessageBox::Yes);
     QAbstractButton* b = msgbox.addButton(QMessageBox::No);
-    QAbstractButton* c = msgbox.addButton(QMessageBox::Cancel);
+    msgbox.addButton(QMessageBox::Cancel);
     msgbox.exec();
     QAbstractButton* d = msgbox.clickedButton();
     if (d == a)
@@ -114,7 +116,7 @@ void MAINRUNTEST::closeEvent(QCloseEvent *event)
             QMessageBox msgbox2;
             msgbox2.setText("Would you still like to exit?");
             QAbstractButton* a = msgbox2.addButton(QMessageBox::Yes);
-            QAbstractButton* b = msgbox2.addButton(QMessageBox::No);
+            msgbox2.addButton(QMessageBox::No);
             msgbox2.exec();
             QAbstractButton* d = msgbox2.clickedButton();
             if (d == a)
@@ -152,4 +154,31 @@ void MAINRUNTEST::handleParametersEditTriggered()
         pform2.addPair(*it);
     }
     pform2.exec();
+}
+
+void MAINRUNTEST::resizeEvent(QResizeEvent* event)
+{
+    if (rt->isCollectingData())
+    {
+        event->ignore();
+    }
+    else
+    {
+        event->accept();
+    }
+}
+
+void MAINRUNTEST::setResizeable(bool resizeable)
+{
+    if (resizeable)
+    {
+        setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
+        setMinimumSize(0,0);
+        ui->statusbar->setSizeGripEnabled(true);
+    }
+    else
+    {
+        this->setFixedSize(size());
+        ui->statusbar->setSizeGripEnabled(false);
+    }
 }

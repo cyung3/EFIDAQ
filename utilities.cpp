@@ -146,9 +146,47 @@ void notify(QList<QList<QString>> lines)
 double mean(QVector<double> in)
 {
     double total = 0;
-    for (size_t i = 0; i < in.size(); i++)
+    for (int i = 0; i < in.size(); i++)
     {
         total += in[i];
     }
     return total / in.size();
+}
+
+Highlighter::Highlighter(QTextDocument *parent)
+    : QSyntaxHighlighter(parent)
+{
+    HighlightingRule rule;
+
+
+    //fieldFormat.setForeground(QBrush(QColor(50, 132, 191)));
+    fieldFormat.setForeground(Qt::green);
+    fieldFormat.setFontWeight(QFont::Bold);
+    QString pattern("[0123456789.-+]");
+    rule.pattern = QRegExp(pattern);
+    rule.format = fieldFormat;
+    highlightingRules.append(rule);
+
+    delimiterFormat.setForeground(Qt::magenta);
+    delimiterFormat.setFontWeight(QFont::Light);
+    QStringList delimiterPatterns;
+    delimiterPatterns << "[,;]";
+    foreach (const QString &pattern, delimiterPatterns) {
+        rule.pattern = QRegExp(pattern);
+        rule.format = delimiterFormat;
+        highlightingRules.append(rule);
+    }
+}
+
+void Highlighter::highlightBlock(const QString &text)
+{
+    foreach (const HighlightingRule &rule, highlightingRules) {
+        QRegExp expression(rule.pattern);
+        int index = expression.indexIn(text);
+        while (index >= 0) {
+            int length = expression.matchedLength();
+            setFormat(index, length, rule.format);
+            index = expression.indexIn(text, index + length);
+        }
+    }
 }

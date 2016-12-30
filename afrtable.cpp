@@ -10,6 +10,8 @@ AFRTABLE::AFRTABLE(QWidget *parent) :
     ui(new Ui::AFRTABLE)
 {
     ui->setupUi(this);
+    setWindowTitle(QString("Air to Fuel Ratio Table"));
+    setWindowIcon(QIcon(":/SupermileageLogo.png"));
 
     // Set to delete when closed.
     this->setAttribute(Qt::WA_DeleteOnClose, true);

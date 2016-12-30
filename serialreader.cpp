@@ -12,6 +12,13 @@ SERIALREADER::SERIALREADER(QObject* parent)
     m_data = new QByteArray;
     m_serialPort = new QSerialPort;
     m_serialPort->setPortName(QString("NONE"));
+    m_serialPort->setBaudRate(QSerialPort::Baud57600);
+    //QSerialPort::Baud9600  <-- Maximum data integrity ~47 data points per second
+    //QSerialPort::Baud19200 <-- Strong data integrity  ~94 data points per second
+    //QSerialPort::Baud38400 <-- Good data integrity    ~141 data points per second
+    //QSerialPort::Baud57600 <-- Okay data integrity    ~188 data points per second
+    //QSerialPort::Baud115200<-- Marginal data integrity ~370 data points per second
+    //Baud rate = 230400 <-- Bad data integrity     ~490 data points per second
 
     // Connect signals to slots
     connect(m_serialPort, SIGNAL(error(QSerialPort::SerialPortError)), SLOT(handleError(QSerialPort::SerialPortError)));
@@ -142,26 +149,35 @@ void SERIALREADER::handleError(QSerialPort::SerialPortError error)
         return;
     case QSerialPort::DeviceNotFoundError:
         errorMSG = "ERROR. No serial device found.";
-        return;
+        break;
     case QSerialPort::PermissionError:
-        return;
+        errorMSG = "PermissionError";
+        break;
     case QSerialPort::OpenError:
-        return;
+        errorMSG = "OpenError";
+        break;
     case QSerialPort::NotOpenError:
-        return;
+        errorMSG = "NotOpenError";
+        break;
     case QSerialPort::WriteError:
-        return;
+        errorMSG = "WriteError";
+        break;
     case QSerialPort::ReadError:
-        return;
+        errorMSG = "ReadError";
+        break;
     case QSerialPort::ResourceError:
         errorMSG = "ERROR. The serial connection was abruptly terminated.";
-        return;
+        emit stopCollecting();
+        break;
+
     case QSerialPort::UnsupportedOperationError:
-        return;
+        errorMSG = "UnsupportedOperationError";
+        break;
     case QSerialPort::TimeoutError:
-        return;
+        errorMSG = "TimeoutError";
+        break;
     default:
-        return;
+        break;
     }
     errorMSGBOX.setText(errorMSG);
     errorMSGBOX.exec();

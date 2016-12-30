@@ -58,6 +58,7 @@ PlotWindow::PlotWindow(QWidget* parent, RUNTEST* rparent) :
   measuredFrameRate(30)
 {
   ui->setupUi(this);
+  setWindowIcon(QIcon(":/SupermileageLogo.png"));
   
   // Needed in order to set a flag in RUNTEST if the plotting window
   // is abruptly closed.

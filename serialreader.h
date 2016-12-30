@@ -25,6 +25,7 @@ private slots:
     void handleReadyRead();
     void handleError(QSerialPort::SerialPortError error);
 signals:
+    void stopCollecting();
 };
 
 #endif // SERIALREADER_H

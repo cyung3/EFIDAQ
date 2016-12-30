@@ -14,19 +14,23 @@ class RUNTEST;
 class PlotWindow;
 class SERIALREADER;
 class AFRTABLE;
+class Highlighter;
+class MAINRUNTEST;
 
 class RUNTEST : public QWidget
 {
     Q_OBJECT
 
 public:
-    RUNTEST(QWidget *parent = 0);
+    RUNTEST(MAINRUNTEST* mrtparent, QWidget *parent = 0);
     ~RUNTEST();
 
     int saveData();
     int clearData();
     void setDataLocked(bool yes = true);
     void stopPlotting(PlotWindow* sender);
+    bool isCollectingData() const;
+
 public slots:
     void hitDataTimer();
     void xItemChanged(QModelIndex xindex);
@@ -49,12 +53,16 @@ private:
     LIST_CHOICES_MODEL* m_ylmodel;
     AFRTABLE* m_afrtable;
 
+    Highlighter* highlighter;
+
     QTimer* m_dataRefrTimer;
     unsigned long long int m_ndp;
     QVector<PlotWindow*> pw;
     SERIALREADER* m_serialReader;
     QByteArray* m_bytebuf;
     int expectedNumFields;
+
+    MAINRUNTEST* mrtparent;
 
     QVector<QVector<double>> m_xData;
     QVector<QVector<double>> m_yData;

@@ -3,5 +3,6 @@
         <file>AFR_TABLE.csv</file>
         <file>LABEL_LIST.csv</file>
         <file>INPUT_DATA.csv</file>
+        <file>SupermileageLogo.png</file>
     </qresource>
 </RCC>
