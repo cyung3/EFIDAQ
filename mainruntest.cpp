@@ -17,7 +17,7 @@ MAINRUNTEST::MAINRUNTEST(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle(QString("EFI Data Acquisition System"));
-    setWindowIcon(QIcon(":/SupermileageLogo.png"));
+    setWindowIcon(QIcon(efidaq::DEFAULT_LOGO_FILEPATH));
 
     // Delete when closed
     this->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -131,6 +131,10 @@ void MAINRUNTEST::closeEvent(QCloseEvent *event)
     }
     else if (d == b)
     {
+        if (rt->isCollectingData())
+        {
+            rt->on_EndDCButton_clicked();
+        }
         event->accept();
     }
     else
@@ -181,4 +185,14 @@ void MAINRUNTEST::setResizeable(bool resizeable)
         this->setFixedSize(size());
         ui->statusbar->setSizeGripEnabled(false);
     }
+}
+
+bool MAINRUNTEST::isFilteringByNumFields() const
+{
+    return ui->actionFilterByNumFields->isChecked();
+}
+
+bool MAINRUNTEST::isFilteringByContent() const
+{
+    return ui->actionFilterByContent->isChecked();
 }

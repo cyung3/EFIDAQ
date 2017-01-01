@@ -55,10 +55,10 @@ PlotWindow::PlotWindow(QWidget* parent, RUNTEST* rparent) :
   ui(new Ui::PlotWindow),
   m_xData(efidaq::DEFAULT_MAX_PLOTTED_POINTS),
   m_yData(efidaq::DEFAULT_MAX_PLOTTED_POINTS),
-  measuredFrameRate(30)
+  measuredFrameRate(efidaq::DEFAULT_FRAME_RATE)
 {
   ui->setupUi(this);
-  setWindowIcon(QIcon(":/SupermileageLogo.png"));
+  setWindowIcon(QIcon(efidaq::DEFAULT_LOGO_FILEPATH));
   
   // Needed in order to set a flag in RUNTEST if the plotting window
   // is abruptly closed.
@@ -78,7 +78,7 @@ PlotWindow::PlotWindow(QWidget* parent, RUNTEST* rparent) :
   time = new QTime;
   time->start();
   lastTime = time->elapsed();
-  frameRate = 30;
+  frameRate = efidaq::DEFAULT_FRAME_RATE;
   secPerFrame = 1.0 / frameRate;
 
   //setupDemo();
@@ -185,7 +185,8 @@ void PlotWindow::handleActionDataPointsTriggered()
                 QString("Data Point"),
                 QString("Input the maximum number of data points that can be on the plot."),
                 value,
-                1);
+                1,
+                INT_MAX);
     m_xData.setMaxSize(value);
     m_yData.setMaxSize(value);
 }
@@ -194,6 +195,8 @@ void PlotWindow::handleActionClearTriggered()
 {
     m_xData.clear();
     m_yData.clear();
+    ui->customPlot->graph(0)->setData(m_xData, m_yData);
+    ui->customPlot->replot();
 }
 
 void PlotWindow::handleActionConnectPointsTriggered(bool connect)
@@ -230,21 +233,32 @@ void PlotWindow::handleActionFrameRateTriggered()
                 QString("Frame Rate"),
                 QString("Input the desired frame rate for refreshing the plot."),
                 value,
-                1);
+                1,
+                INT_MAX);
     frameRate = value;
     secPerFrame = 1.0 / frameRate;
 }
 
-void PlotWindow::setXLabel(std::pair<QString, int> xLabel)
+bool PlotWindow::setXLabel(std::pair<QString, int> xLabel)
 {
-    m_xLabel = xLabel;
-    ui->customPlot->xAxis->setLabel(xLabel.first);
+    if (xLabel.second >= 0)
+    {
+        m_xLabel = xLabel;
+        ui->customPlot->xAxis->setLabel(xLabel.first);
+        return true;
+    }
+    return false;
 }
 
-void PlotWindow::setYLabel(std::pair<QString, int> yLabel)
+bool PlotWindow::setYLabel(std::pair<QString, int> yLabel)
 {
-    m_yLabel = yLabel;
-    ui->customPlot->yAxis->setLabel(yLabel.first);
+    if (yLabel.second >= 0)
+    {
+        m_yLabel = yLabel;
+        ui->customPlot->yAxis->setLabel(yLabel.first);
+        return true;
+    }
+    return false;
 }
 
 const std::pair<QString, int>& PlotWindow::getXLabel() const

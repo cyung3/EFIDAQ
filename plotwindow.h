@@ -69,16 +69,18 @@ public:
   void addData(QVector<double>& X, QVector<double>& Y);
   void setup(QCustomPlot *customPlot);
 
-  void setXLabel(std::pair<QString, int> xLabel);
-  void setYLabel(std::pair<QString, int> yLabel);
+  bool setXLabel(std::pair<QString, int> xLabel);
+  bool setYLabel(std::pair<QString, int> yLabel);
   const std::pair<QString, int>& getXLabel() const;
   const std::pair<QString, int>& getYLabel() const;
+
 private slots:
   void handleActionDataPointsTriggered();
   void handleActionClearTriggered();
   void handleActionConnectPointsTriggered(bool connect);
   void handleActionSavePlotTriggered();
   void handleActionFrameRateTriggered();
+
 private:
   void closeEvent(QCloseEvent *event);
 

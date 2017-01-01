@@ -20,6 +20,8 @@ public:
     void closeEvent(QCloseEvent* event);
     void resizeEvent(QResizeEvent* event);
     void setResizeable(bool resizeable);
+    bool isFilteringByNumFields() const;
+    bool isFilteringByContent() const;
 private slots:
     bool saveData();
     bool clearData();

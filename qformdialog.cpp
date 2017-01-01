@@ -1,5 +1,6 @@
 #include "qformdialog.h"
 #include "ui_qformdialog.h"
+#include "utilities.h"
 
 #include <QSet>
 #include <QLabel>
@@ -10,7 +11,7 @@ QFormDialog::QFormDialog(QWidget *parent) :
     ui(new Ui::QFormDialog)
 {
     ui->setupUi(this);
-    setWindowIcon(QIcon(":/SupermileageLogo.png"));
+    setWindowIcon(QIcon(efidaq::DEFAULT_LOGO_FILEPATH));
 
     connect(ui->okButton, SIGNAL(clicked(bool)), SLOT(handleOkButtonClicked(bool)));
     connect(ui->cancelButton, SIGNAL(clicked(bool)), SLOT(handleCancelButtonClicked(bool)));

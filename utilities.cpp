@@ -190,3 +190,65 @@ void Highlighter::highlightBlock(const QString &text)
         }
     }
 }
+
+ByteFilter::ByteFilter()
+{
+    // Do nothing.
+}
+
+ByteFilter::ByteFilter(const QVector<QRegExp>& filterExpressions)
+{
+    // Copy the input filterExpressions QVector.
+    this->filterExpressions = filterExpressions;
+}
+
+ByteFilter::ByteFilter(const QList<QRegExp>& filterExpressions)
+{
+    // Copy the QList as a QVector.
+    this->filterExpressions = filterExpressions.toVector();
+}
+
+void ByteFilter::pass(QString& string)
+{
+    foreach(const QRegExp& expr, filterExpressions)
+    {
+        string.remove(expr);
+    }
+}
+
+void ByteFilter::pass(QList<QString>& stringList)
+{
+    for (auto it = stringList.begin(); it != stringList.end(); it++)
+    {
+        pass(*it);
+    }
+}
+
+void ByteFilter::pass(QVector<QString>& stringVector)
+{
+    for (auto it = stringVector.begin(); it != stringVector.end(); it++)
+    {
+        pass(*it);
+    }
+}
+
+bool ByteFilter::addFilter(QString filterExp)
+{
+    QRegExp expr(filterExp);
+    if (expr.isValid())
+    {
+        filterExpressions.push_back(expr);
+        return true;
+    }
+    return false;
+}
+
+bool ByteFilter::addFilter(QRegExp filterExp)
+{
+    if (filterExp.isValid())
+    {
+        filterExpressions.push_back(filterExp);
+        return true;
+    }
+    return false;
+}

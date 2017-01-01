@@ -6,6 +6,7 @@
 #include <QByteArray>
 
 #include "tmodels.h"
+#include "utilities.h"
 
 namespace Ui {
 class RUNTEST;
@@ -35,15 +36,15 @@ public slots:
     void hitDataTimer();
     void xItemChanged(QModelIndex xindex);
     void yItemChanged(QModelIndex yindex);
-
-private slots:
-    void on_sampleRateSlider_sliderMoved(int position);
-    void on_sampleRateEdit_editingFinished();
     void on_StartDCButton_clicked();
     void on_EndDCButton_clicked();
     void on_OpenAFRTableButton_clicked();
     void on_PlotDataButton_clicked();
     void on_setSerialPortButton_clicked();
+
+private slots:
+    void on_sampleRateSlider_sliderMoved(int position);
+    void on_sampleRateEdit_editingFinished();
 
 private:
     void addData();
@@ -61,6 +62,7 @@ private:
     SERIALREADER* m_serialReader;
     QByteArray* m_bytebuf;
     int expectedNumFields;
+    ByteFilter filter;
 
     MAINRUNTEST* mrtparent;
 

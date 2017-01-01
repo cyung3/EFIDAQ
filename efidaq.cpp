@@ -2,6 +2,7 @@
 #include "ui_efidaq.h"
 #include "testsetup.h"
 #include "mainruntest.h"
+#include "utilities.h"
 
 EFIDAQ::EFIDAQ(QWidget *parent) :
     QMainWindow(parent),
@@ -12,14 +13,16 @@ EFIDAQ::EFIDAQ(QWidget *parent) :
     // then the window will not be initialized with the traits
     // determined in the ".ui" file associated with this window.
     ui->setupUi(this);
-    setWindowIcon(QIcon(":/SupermileageLogo.png"));
+    setWindowIcon(QIcon(efidaq::DEFAULT_LOGO_FILEPATH));
 
     ts = nullptr;
+    mrt = nullptr;
 }
 
 EFIDAQ::~EFIDAQ()
 {
     delete ui;
+    // Windows created in EFIDAQ are set to delete themselves.
 }
 
 void EFIDAQ::on_SetupButton_clicked()

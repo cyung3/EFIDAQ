@@ -33,8 +33,16 @@
     <property name="title">
      <string>DataStream</string>
     </property>
+    <widget class="QMenu" name="menuFilter">
+     <property name="title">
+      <string>Filter</string>
+     </property>
+     <addaction name="actionFilterByNumFields"/>
+     <addaction name="actionFilterByContent"/>
+    </widget>
     <addaction name="actionClear"/>
     <addaction name="actionLocked"/>
+    <addaction name="menuFilter"/>
    </widget>
    <widget class="QMenu" name="menuSignals">
     <property name="title">
@@ -140,6 +148,30 @@
   <action name="actionEdit">
    <property name="text">
     <string>Edit</string>
+   </property>
+  </action>
+  <action name="actionFilterLow">
+   <property name="text">
+    <string>Low</string>
+   </property>
+  </action>
+  <action name="actionFilterByNumFields">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>By Number of Fields</string>
+   </property>
+  </action>
+  <action name="actionFilterByContent">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>By Content</string>
    </property>
   </action>
  </widget>

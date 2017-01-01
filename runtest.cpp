@@ -101,6 +101,9 @@ RUNTEST::RUNTEST(MAINRUNTEST* mrtparent, QWidget* parent) :
 
     // Initialize the byte buffer for serial input
     m_bytebuf = new QByteArray;
+
+    // Initialize the ByteFilter that will be used to filter out bad input.
+    filter.addFilter(QString("[^0123456789.-,+\n]"));
 }
 
 // Destructor for the RUNTEST class
@@ -225,12 +228,10 @@ void RUNTEST::setDataLocked(bool yes)
 }
 
 // Function that runs everytime the timer triggers.
+// Reads available data and sends it to the graphs and terminal
+// window to be displayed.
 void RUNTEST::hitDataTimer()
 {
-    // Not sure if there will be issues here if the serialreader happens to be
-    // recording bytes while this code is run. Will need to look into further.
-    // Possibly will require some sort of protocols to define the beginning and
-    // ends of information.
     QByteArray data(*m_bytebuf);
     unsigned long long nBytes = m_serialReader->availableData(data);
     m_bytebuf->clear();
@@ -250,42 +251,54 @@ void RUNTEST::hitDataTimer()
     // Split all the data into individual data points by splitting along the newline character.
     QList<QByteArray> indivDataPoints = data.split(newline);
     QList<QByteArray> indivFields;
+    QString line;
 
     // Loops through the individual data points and prints them to the screen one at a time.
     for (int i = 0; i < indivDataPoints.length()-1; i++)
     {
         indivFields = indivDataPoints[i].split(delimiter);
+        line = indivDataPoints[i];
 
-        // Might not want this but it only prints data points that have the expected
-        // number of fields. Filters out some bad input but still not fullproof.
-        if (indivFields.length() == expectedNumFields)
+        // Functional Filter.
+        if (mrtparent->isFilteringByNumFields())
         {
-            ui->DataBrowser->insertPlainText(QString(indivDataPoints[i]));
-            // Try to get some syntax highlighting in here???
-
-            // Makes it only autoscroll if the verticalScrollBar is within 50 lines of the bottom.
-            if (ui->DataBrowser->verticalScrollBar()->maximum() - ui->DataBrowser->verticalScrollBar()->value() <= 50)
-                ui->DataBrowser->verticalScrollBar()->setValue(ui->DataBrowser->verticalScrollBar()->maximum());
-
-            // Appends the xData and yData points
-            // Check is necessary to ensure index is within the range of data input.
-            for (int i = 0; i < pw.size(); i++)
+            if (indivFields.length() != expectedNumFields)
             {
-                if (pw[i]->getXLabel().second < indivFields.length() && pw[i]->getYLabel().second < indivFields.length())
-                {
-                    QString xstr = QString(indivFields[pw[i]->getXLabel().second]);
-                    xstr.remove(QRegExp(QString("[\n\t\r]*")));
-                    double xval = xstr.toDouble();
-                    m_xData[i].append(xval);
-
-                    QString ystr = QString(indivFields[pw[i]->getYLabel().second]);
-                    ystr.remove(QRegExp(QString("[\n\t\r]*")));
-                    double yval = ystr.toDouble();
-                    m_yData[i].append(yval);
-                }
+                continue;
             }
-            m_ndp++;
         }
+        if (mrtparent->isFilteringByContent())
+        {
+            if (line.contains(QRegExp("[^0123456789.-,+\n\r]")))
+            {
+                continue;
+            }
+        }
+        ui->DataBrowser->insertPlainText(line);
+
+        // Makes it only autoscroll if the verticalScrollBar is within 50 lines of the bottom.
+        if (ui->DataBrowser->verticalScrollBar()->maximum() - ui->DataBrowser->verticalScrollBar()->value() <= 50)
+            ui->DataBrowser->verticalScrollBar()->setValue(ui->DataBrowser->verticalScrollBar()->maximum());
+
+        // Appends the xData and yData points
+        // Check is necessary to ensure index is within the range of data input.
+        for (int i = 0; i < pw.size(); i++)
+        {
+            if (pw[i]->getXLabel().second < indivFields.length() && pw[i]->getYLabel().second < indivFields.length())
+            {
+                QString xstr = QString(indivFields[pw[i]->getXLabel().second]);
+                xstr.remove(QRegExp(QString("[\n\t\r]*")));
+                double xval = xstr.toDouble();
+                m_xData[i].append(xval);
+
+                QString ystr = QString(indivFields[pw[i]->getYLabel().second]);
+                ystr.remove(QRegExp(QString("[\n\t\r]*")));
+                double yval = ystr.toDouble();
+                m_yData[i].append(yval);
+            }
+        }
+        m_ndp++;
+
     }
 
 
@@ -305,16 +318,13 @@ void RUNTEST::hitDataTimer()
     // Update the LCD with the total sample number
     ui->NumDPlcd->display((int) m_ndp);
 
-    // Update charts
+    // Update plots
     addData();
 }
 
 // Activates whenever the sampleRateSlider is moved.
 void RUNTEST::on_sampleRateSlider_sliderMoved(int position)
 {
-    // Displays the slider position in the DataBrowser.
-    //ui->DataBrowser->append(QString("Slider position: %1").arg(position));
-
     // Update the sampleRateEdit to the slider value
     ui->sampleRateEdit->setText(QString("%1").arg(position));
 
@@ -406,6 +416,8 @@ void RUNTEST::on_EndDCButton_clicked()
 void RUNTEST::on_OpenAFRTableButton_clicked()
 {
     // This window is set to delete automatically.
+    // Should change it so that this window is closed and deleted when
+    // the RUNTEST window is closed and deleted.
     m_afrtable = new AFRTABLE;
     m_afrtable->show();
 }
@@ -442,19 +454,19 @@ void RUNTEST::on_setSerialPortButton_clicked()
 // Activated whenever the xListView selection is changed.
 void RUNTEST::xItemChanged(QModelIndex xindex)
 {
-    // Change string for x item
+    // Change string for x item.
+    // Also save index of item.
     m_xlmodel->getItemAt(xindex.row(), m_xLabel.first);
     m_xLabel.second = xindex.row();
-    //ui->DataBrowser->append(m_xLabel);
 }
 
 // Activated whenever the yListView selection is changed.
 void RUNTEST::yItemChanged(QModelIndex yindex)
 {
-    // change string for y item
+    // Change string for y item.
+    // Also save the index of the item.
     m_ylmodel->getItemAt(yindex.row(), m_yLabel.first);
     m_yLabel.second = yindex.row();
-    //ui->DataBrowser->append(m_yLabel);
 }
 
 // Returns true if currently collecting data.

@@ -11,13 +11,17 @@ AFRTABLE::AFRTABLE(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle(QString("Air to Fuel Ratio Table"));
-    setWindowIcon(QIcon(":/SupermileageLogo.png"));
+    setWindowIcon(QIcon(efidaq::DEFAULT_LOGO_FILEPATH));
 
     // Set to delete when closed.
     this->setAttribute(Qt::WA_DeleteOnClose, true);
 
-    // Initialize the model pointer to a nullptr
-    m_tmodel = nullptr;
+    // Initialize the model pointer.
+    m_tmodel = new AFR_TABLE_MODEL(nullptr);
+    if (m_tmodel->loadTable(efidaq::DEFAULT_AFR_TABLE_FILEPATH))
+    {
+        ui->afrTableView->setModel(m_tmodel);
+    }
 
     // Connect the load table action to the loadTable function.
     connect(ui->actionLoad_Table, SIGNAL(triggered()), SLOT(loadTable()));
