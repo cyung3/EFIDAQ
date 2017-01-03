@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QVector>
 #include <QByteArray>
+#include <QTimer>
 
 #include "tmodels.h"
 #include "utilities.h"
@@ -14,6 +15,7 @@ class RUNTEST;
 
 class PlotWindow;
 class SERIALREADER;
+class UDPReader;
 class AFRTABLE;
 class Highlighter;
 class MAINRUNTEST;
@@ -41,6 +43,9 @@ public slots:
     void on_OpenAFRTableButton_clicked();
     void on_PlotDataButton_clicked();
     void on_setSerialPortButton_clicked();
+    void handleIPAddressEditFinished();
+    void handlePortNoEditFinished();
+    void handleStreamRefrTimeout();
 
 private slots:
     void on_sampleRateSlider_sliderMoved(int position);
@@ -57,9 +62,11 @@ private:
     Highlighter* highlighter;
 
     QTimer* m_dataRefrTimer;
+    QTimer m_streamRefrTimer;
     unsigned long long int m_ndp;
     QVector<PlotWindow*> pw;
     SERIALREADER* m_serialReader;
+    UDPReader* m_udpReader;
     QByteArray* m_bytebuf;
     int expectedNumFields;
     ByteFilter filter;

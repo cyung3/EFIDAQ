@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1133</width>
+    <width>1028</width>
     <height>736</height>
    </rect>
   </property>
@@ -49,7 +49,7 @@
        <item>
         <widget class="QLabel" name="X_Plotting_Label">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -74,7 +74,7 @@
        <item>
         <widget class="QLabel" name="Y_Plotting_Label">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -103,14 +103,14 @@
        <item>
         <widget class="QListView" name="xlistView">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
           <size>
-           <width>200</width>
+           <width>100</width>
            <height>0</height>
           </size>
          </property>
@@ -131,14 +131,14 @@
        <item>
         <widget class="QListView" name="ylistView">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
           <size>
-           <width>200</width>
+           <width>100</width>
            <height>0</height>
           </size>
          </property>
@@ -196,7 +196,7 @@
           </font>
          </property>
          <property name="placeholderText">
-          <string>Sampling Rate (P/sec)</string>
+          <string>Data Scan Rate (scans/sec)</string>
          </property>
         </widget>
        </item>
@@ -262,6 +262,42 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QLineEdit" name="IPEdit">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Courier New</family>
+          </font>
+         </property>
+         <property name="placeholderText">
+          <string>IP Address</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="PortEdit">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Courier New</family>
+          </font>
+         </property>
+         <property name="placeholderText">
+          <string>Port Number</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item>
@@ -269,7 +305,7 @@
        <item>
         <widget class="QLabel" name="NumDPLabel">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -284,7 +320,10 @@
           <enum>QFrame::Box</enum>
          </property>
          <property name="text">
-          <string>Number of Data Points:</string>
+          <string>Number of Data Points Collected:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
@@ -312,15 +351,15 @@
      <item>
       <widget class="QTextBrowser" name="DataBrowser">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
        <property name="minimumSize">
         <size>
-         <width>250</width>
-         <height>250</height>
+         <width>100</width>
+         <height>100</height>
         </size>
        </property>
        <property name="cursor" stdset="0">
@@ -346,6 +385,9 @@ color: rgb(255, 255, 255);</string>
        </property>
        <property name="midLineWidth">
         <number>0</number>
+       </property>
+       <property name="lineWrapMode">
+        <enum>QTextEdit::NoWrap</enum>
        </property>
       </widget>
      </item>

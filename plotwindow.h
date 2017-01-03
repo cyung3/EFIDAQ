@@ -56,6 +56,7 @@ class PlotWindow;
 }
 
 class RUNTEST;
+class QTimer;
 
 class PlotWindow : public QMainWindow
 {
@@ -81,6 +82,8 @@ private slots:
   void handleActionSavePlotTriggered();
   void handleActionFrameRateTriggered();
 
+  void handleRefreshTimerTimeout();
+
 private:
   void closeEvent(QCloseEvent *event);
 
@@ -88,10 +91,12 @@ private:
   QTimer dataTimer;
 
   QTime* time;
+  QTimer* timer;
   unsigned long long int lastTime;
   double secPerFrame;
   int frameRate;
   WrappingQVector<double> measuredFrameRate;
+  bool changed;
 
   WrappingQVector<double> m_xData;
   WrappingQVector<double> m_yData;

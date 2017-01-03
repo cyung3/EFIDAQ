@@ -16,12 +16,19 @@ const int FAILED_CURRENTLY_COLLECTING = 2;
 const int OPEN_FILE_FAILED = 3;
 const int WRITE_FILE_FAILED = 4;
 
+const int DEFAULT_BAUD_RATE = 57600;
+const int COLLECTION_BY_SERIAL = 0;
+const int COLLECTION_BY_UDP = 1;
+
 const int DEFAULT_MAX_PLOTTED_POINTS = 100;
 const int DEFAULT_FRAME_RATE = 30;
 
 const int FILTER_NONE = 0;
 const int FILTER_BY_NUM_FIELDS = 1;
 const int FILTER_BY_CONTENT = 2;
+
+const int DEFAULT_PORTNO = 50000;
+const QString DEFAULT_IPADDRESS = "0.0.0.0";
 
 const QString DEFAULT_AFR_TABLE_FILEPATH = ":/AFR_TABLE.csv";
 const QString DEFAULT_LABEL_LIST_FILEPATH = ":/LABEL_LIST.csv";

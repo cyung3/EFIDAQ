@@ -39,6 +39,10 @@ MAINRUNTEST::MAINRUNTEST(QWidget *parent) :
 
     // Connect the parameter edit menu action to its handler function.
     connect(ui->actionEdit, SIGNAL(triggered()), SLOT(handleParametersEditTriggered()));
+
+    // Connect the collection protocol menu actions to their handler functions.
+    connect(ui->actionProtocolSerialBlocks, SIGNAL(triggered(bool)), SLOT(handleProtocolSerialBlocksTriggered(bool)));
+    connect(ui->actionProtocolUDP_Packets, SIGNAL(triggered(bool)), SLOT(handleProtocolUDPPacketsTriggered(bool)));
 }
 
 MAINRUNTEST::~MAINRUNTEST()
@@ -105,6 +109,10 @@ void MAINRUNTEST::closeEvent(QCloseEvent *event)
     msgbox.addButton(QMessageBox::Cancel);
     msgbox.exec();
     QAbstractButton* d = msgbox.clickedButton();
+    if (rt->isCollectingData())
+    {
+        rt->on_EndDCButton_clicked();
+    }
     if (d == a)
     {
         if (saveData())
@@ -131,10 +139,6 @@ void MAINRUNTEST::closeEvent(QCloseEvent *event)
     }
     else if (d == b)
     {
-        if (rt->isCollectingData())
-        {
-            rt->on_EndDCButton_clicked();
-        }
         event->accept();
     }
     else
@@ -195,4 +199,70 @@ bool MAINRUNTEST::isFilteringByNumFields() const
 bool MAINRUNTEST::isFilteringByContent() const
 {
     return ui->actionFilterByContent->isChecked();
+}
+
+// Intended to toggle between both protocols. Must always be at least one protocol.
+void MAINRUNTEST::handleProtocolSerialBlocksTriggered(bool checked)
+{
+    if (!rt->isCollectingData())
+    {
+        ui->actionProtocolUDP_Packets->setChecked(!checked);
+        ui->actionProtocolSerialBlocks->setChecked(checked);
+        if (checked)
+        {
+            notify("Collection through Serial Blocks activated.");
+        }
+        else
+        {
+            notify("Collection through UDP Packets activated.");
+        }
+    }
+    else
+    {
+        ui->actionProtocolSerialBlocks->setChecked(!checked);
+        notify("Collection protocol cannot be changed while data is being collected.");
+    }
+}
+
+void MAINRUNTEST::handleProtocolUDPPacketsTriggered(bool checked)
+{
+    if (!rt->isCollectingData())
+    {
+        ui->actionProtocolSerialBlocks->setChecked(!checked);
+        ui->actionProtocolUDP_Packets->setChecked(checked);
+        if (checked)
+        {
+            notify("Collection through UDP Packets activated.");
+        }
+        else
+        {
+            notify("Collection through Serial Blocks activated.");
+        }
+    }
+    else
+    {
+        ui->actionProtocolUDP_Packets->setChecked(!checked);
+        notify("Collection protocol cannot be changed while data is being collected.");
+    }
+}
+
+int MAINRUNTEST::collectionMethod() const
+{
+    if (ui->actionProtocolSerialBlocks->isChecked())
+    {
+        return efidaq::COLLECTION_BY_SERIAL;
+    }
+    else if (ui->actionProtocolUDP_Packets->isChecked())
+    {
+        return efidaq::COLLECTION_BY_UDP;
+    }
+    else
+    {
+        return efidaq::COLLECTION_BY_SERIAL;
+    }
+}
+
+bool MAINRUNTEST::isShowingValues() const
+{
+    return ui->actionShow_Values->isChecked();
 }

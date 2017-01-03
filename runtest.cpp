@@ -1,6 +1,7 @@
 #include "runtest.h"
 #include "ui_runtest.h"
 #include "serialreader.h"
+#include "udpreader.h"
 #include "tmodels.h"
 #include "plotwindow.h"
 #include "utilities.h"
@@ -78,10 +79,11 @@ RUNTEST::RUNTEST(MAINRUNTEST* mrtparent, QWidget* parent) :
     // work. May need to implement different method for updating the text
     // browser.
     m_dataRefrTimer = new QTimer(this);
+    connect(&m_streamRefrTimer, SIGNAL(timeout()), this, SLOT(handleStreamRefrTimeout()));
+    m_streamRefrTimer.start(33);
 
     // This kind of timer is automatically repeating.
-    // The interval is in milliseconds. Would want this
-    // time to actually be set by the sample rate.
+    // The interval is in milliseconds.
     m_dataRefrTimer->setInterval( (int) ((((double)1/ui->sampleRateSlider->minimum())) * 1000));
 
     // Connects the timer's "timeout()" signal to the specified slot, which is
@@ -94,6 +96,15 @@ RUNTEST::RUNTEST(MAINRUNTEST* mrtparent, QWidget* parent) :
     // Initialize serial reader for taking in data
     m_serialReader = new SERIALREADER(this);
     ui->serialPortNameLabel->setText(m_serialReader->portName());
+
+    // Initialize udp reader for taking in data
+    m_udpReader = new UDPReader(this);
+    m_udpReader->setIPAddress(efidaq::DEFAULT_IPADDRESS);
+    m_udpReader->setPortNo(efidaq::DEFAULT_PORTNO);
+    ui->IPEdit->setText(m_udpReader->getIPAddressString());
+    ui->PortEdit->setText(QString("%1").arg(m_udpReader->getPortNo()));
+    connect(ui->IPEdit, SIGNAL(editingFinished()), this, SLOT(handleIPAddressEditFinished()));
+    connect(ui->PortEdit, SIGNAL(editingFinished()), this, SLOT(handlePortNoEditFinished()));
 
     // Allow the serial reader to send a stop collection signal in the event of
     // an abrupt connection break.
@@ -233,7 +244,21 @@ void RUNTEST::setDataLocked(bool yes)
 void RUNTEST::hitDataTimer()
 {
     QByteArray data(*m_bytebuf);
-    unsigned long long nBytes = m_serialReader->availableData(data);
+    unsigned long long nBytes = 0;
+
+    // Ask the main window about which collection method is being used.
+    switch (mrtparent->collectionMethod())
+    {
+    case efidaq::COLLECTION_BY_SERIAL:
+        nBytes = m_serialReader->availableData(data);
+        break;
+    case efidaq::COLLECTION_BY_UDP:
+        nBytes = m_udpReader->availableData(data);
+        break;
+    default:
+        return;
+    }
+
     m_bytebuf->clear();
 
     // Check to see if any bytes were recorded
@@ -254,7 +279,7 @@ void RUNTEST::hitDataTimer()
     QString line;
 
     // Loops through the individual data points and prints them to the screen one at a time.
-    for (int i = 0; i < indivDataPoints.length()-1; i++)
+    for (int i = 0; i < indivDataPoints.length()-1; i++ )
     {
         indivFields = indivDataPoints[i].split(delimiter);
         line = indivDataPoints[i];
@@ -274,11 +299,7 @@ void RUNTEST::hitDataTimer()
                 continue;
             }
         }
-        ui->DataBrowser->insertPlainText(line);
-
-        // Makes it only autoscroll if the verticalScrollBar is within 50 lines of the bottom.
-        if (ui->DataBrowser->verticalScrollBar()->maximum() - ui->DataBrowser->verticalScrollBar()->value() <= 50)
-            ui->DataBrowser->verticalScrollBar()->setValue(ui->DataBrowser->verticalScrollBar()->maximum());
+        ui->DataBrowser->insertPlainText(line + '\n');
 
         // Appends the xData and yData points
         // Check is necessary to ensure index is within the range of data input.
@@ -352,8 +373,20 @@ void RUNTEST::on_sampleRateEdit_editingFinished()
 // Resuming data collection causes strange bytes.
 void RUNTEST::on_StartDCButton_clicked()
 {
-    // Attempt to open the serial connection
-    if (m_serialReader->open(QIODevice::ReadOnly))
+    bool connectionOpened = false;
+    switch(mrtparent->collectionMethod())
+    {
+    case efidaq::COLLECTION_BY_SERIAL:
+        // Attempt to open the serial connection
+        connectionOpened = m_serialReader->open(QIODevice::ReadOnly);
+        break;
+    case efidaq::COLLECTION_BY_UDP:
+        // Attempt to bind to the current set address and port.
+        connectionOpened = m_udpReader->open();
+        break;
+    }
+
+    if (connectionOpened)
     {
         // Starts the timer.
         if (!m_dataRefrTimer->isActive())
@@ -374,7 +407,7 @@ void RUNTEST::on_StartDCButton_clicked()
     }
     else
     {
-        notify(QString("Failed to open the serial connection"));
+        notify(QString("Failed to open the connection."));
     }
 }
 
@@ -382,7 +415,19 @@ void RUNTEST::on_StartDCButton_clicked()
 // Ending data collection causes strange bytes.
 void RUNTEST::on_EndDCButton_clicked()
 {
-    if (m_serialReader->close())
+    bool connectionClosed = false;
+    switch(mrtparent->collectionMethod())
+    {
+    case efidaq::COLLECTION_BY_SERIAL:
+        // Attempt to open the serial connection
+        connectionClosed = m_serialReader->close();
+        break;
+    case efidaq::COLLECTION_BY_UDP:
+        // Attempt to bind to the current set address and port.
+        connectionClosed = m_udpReader->close();
+        break;
+    }
+    if (connectionClosed)
     {
         // Stops the timer
         if (m_dataRefrTimer->isActive())
@@ -408,7 +453,7 @@ void RUNTEST::on_EndDCButton_clicked()
     }
     else
     {
-        notify("Failed to close the serial connection");
+        notify("Failed to close the connection");
     }
 }
 
@@ -420,6 +465,41 @@ void RUNTEST::on_OpenAFRTableButton_clicked()
     // the RUNTEST window is closed and deleted.
     m_afrtable = new AFRTABLE;
     m_afrtable->show();
+}
+
+void RUNTEST::handleIPAddressEditFinished()
+{
+    if (!m_udpReader->setIPAddress(ui->IPEdit->text()))
+    {
+        notify("Invalid IP address.");
+        ui->IPEdit->setText(m_udpReader->getIPAddressString());
+    }
+}
+
+void RUNTEST::handlePortNoEditFinished()
+{
+    quint16 value = 0;
+    value = ui->PortEdit->text().toUShort();
+    if (!value)
+    {
+        notify("Invalid entry. Port number must be an unsigned short.");
+        ui->PortEdit->setText(QString("%1").arg(m_udpReader->getPortNo()));
+        return;
+    }
+    if (!m_udpReader->setPortNo(value))
+    {
+        notify("Invalid port number.");
+        ui->PortEdit->setText(QString("%1").arg(m_udpReader->getPortNo()));
+    }
+}
+
+void RUNTEST::handleStreamRefrTimeout()
+{
+    // Only autoscrolls if set to show new values.
+    if (mrtparent->isShowingValues())
+    {
+        ui->DataBrowser->verticalScrollBar()->setValue(ui->DataBrowser->verticalScrollBar()->maximum());
+    }
 }
 
 // Add Data to the plot

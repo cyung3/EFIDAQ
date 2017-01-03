@@ -22,11 +22,16 @@ public:
     void setResizeable(bool resizeable);
     bool isFilteringByNumFields() const;
     bool isFilteringByContent() const;
+    int collectionMethod() const;
+    bool isShowingValues() const;
+
 private slots:
     bool saveData();
     bool clearData();
     void dataLockChanged(bool checked);
     void handleParametersEditTriggered();
+    void handleProtocolSerialBlocksTriggered(bool);
+    void handleProtocolUDPPacketsTriggered(bool);
 
 private:
     Ui::MAINRUNTEST *ui;

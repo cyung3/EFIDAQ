@@ -81,6 +81,11 @@ PlotWindow::PlotWindow(QWidget* parent, RUNTEST* rparent) :
   frameRate = efidaq::DEFAULT_FRAME_RATE;
   secPerFrame = 1.0 / frameRate;
 
+  timer = new QTimer();
+  connect(timer, SIGNAL(timeout()), SLOT(handleRefreshTimerTimeout()));
+  timer->start(secPerFrame * 1000);
+  changed = true;
+
   //setupDemo();
   // for making screenshots of the current demo or all demos (for website screenshots):
   //QTimer::singleShot(1500, this, SLOT(allScreenShots()));
@@ -95,14 +100,15 @@ void PlotWindow::addData(QVector<double>& X, QVector<double>& Y)
     m_xData.push(X);
     m_yData.push(Y);
 
-    double deltaTime = (time->elapsed() - lastTime) / 1000.0;
-    if (deltaTime >= secPerFrame)
+    changed = true;
+}
+
+void PlotWindow::handleRefreshTimerTimeout()
+{
+    if (changed)
     {
         // add data to lines:
         ui->customPlot->graph(0)->setData(m_xData, m_yData);
-
-        lastTime = time->elapsed();
-        //std::sort(X.begin(), X.end());
 
         // rescale both axes to fit the current data
         ui->customPlot->graph(0)->rescaleAxes();
@@ -121,6 +127,8 @@ void PlotWindow::addData(QVector<double>& X, QVector<double>& Y)
         }
 
         ui->customPlot->replot();
+        double deltaTime = (time->elapsed() - lastTime) / 1000.0;
+        lastTime = time->elapsed();
 
         measuredFrameRate.push(1 / deltaTime);
         double measure = mean(measuredFrameRate);
@@ -129,6 +137,7 @@ void PlotWindow::addData(QVector<double>& X, QVector<double>& Y)
 
         // make key axis range scroll with the data (at a constant range size of 8):
         //ui->customPlot->xAxis->setRange(key, 8, Qt::AlignRight);
+        changed = false;
     }
 }
 
@@ -175,6 +184,7 @@ PlotWindow::~PlotWindow()
 {
     delete ui;
     delete time;
+    delete timer;
 }
 
 void PlotWindow::handleActionDataPointsTriggered()
@@ -217,12 +227,12 @@ void PlotWindow::handleActionConnectPointsTriggered(bool connect)
         // Sets the scatter style to be discs.
         ui->customPlot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 6));
     }
-
+    changed = true;
 }
 
 void PlotWindow::handleActionSavePlotTriggered()
 {
-
+    notify("Action not yet implemented.");
 }
 
 void PlotWindow::handleActionFrameRateTriggered()
@@ -237,6 +247,7 @@ void PlotWindow::handleActionFrameRateTriggered()
                 INT_MAX);
     frameRate = value;
     secPerFrame = 1.0 / frameRate;
+    timer->start(secPerFrame * 1000);
 }
 
 bool PlotWindow::setXLabel(std::pair<QString, int> xLabel)
@@ -245,6 +256,7 @@ bool PlotWindow::setXLabel(std::pair<QString, int> xLabel)
     {
         m_xLabel = xLabel;
         ui->customPlot->xAxis->setLabel(xLabel.first);
+        changed = true;
         return true;
     }
     return false;
@@ -256,6 +268,7 @@ bool PlotWindow::setYLabel(std::pair<QString, int> yLabel)
     {
         m_yLabel = yLabel;
         ui->customPlot->yAxis->setLabel(yLabel.first);
+        changed = true;
         return true;
     }
     return false;

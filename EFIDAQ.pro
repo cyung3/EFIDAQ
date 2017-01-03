@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT       += serialport
+QT       += network widgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
@@ -24,7 +25,9 @@ SOURCES += main.cpp\
     mainruntest.cpp \
     afrtable.cpp \
     plotwindow.cpp \
-    qformdialog.cpp
+    qformdialog.cpp \
+    udpreader.cpp \
+    sender.cpp
 
 HEADERS  += efidaq.h \
     testsetup.h \
@@ -37,7 +40,9 @@ HEADERS  += efidaq.h \
     afrtable.h \
     wrappingqvector.h \
     plotwindow.h \
-    qformdialog.h
+    qformdialog.h \
+    udpreader.h \
+    sender.h
 
 FORMS    += efidaq.ui \
     testsetup.ui \

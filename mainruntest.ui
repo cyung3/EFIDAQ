@@ -40,9 +40,18 @@
      <addaction name="actionFilterByNumFields"/>
      <addaction name="actionFilterByContent"/>
     </widget>
+    <widget class="QMenu" name="menuCollection_Protocol">
+     <property name="title">
+      <string>Collection Protocol</string>
+     </property>
+     <addaction name="actionProtocolSerialBlocks"/>
+     <addaction name="actionProtocolUDP_Packets"/>
+    </widget>
     <addaction name="actionClear"/>
     <addaction name="actionLocked"/>
     <addaction name="menuFilter"/>
+    <addaction name="menuCollection_Protocol"/>
+    <addaction name="actionShow_Values"/>
    </widget>
    <widget class="QMenu" name="menuSignals">
     <property name="title">
@@ -90,6 +99,12 @@
    </property>
   </action>
   <action name="actionClear">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Clear</string>
    </property>
@@ -172,6 +187,36 @@
    </property>
    <property name="text">
     <string>By Content</string>
+   </property>
+  </action>
+  <action name="actionProtocolSerialBlocks">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Serial Blocks</string>
+   </property>
+  </action>
+  <action name="actionProtocolUDP_Packets">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>UDP Packets</string>
+   </property>
+  </action>
+  <action name="actionShow_Values">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Values</string>
    </property>
   </action>
  </widget>
