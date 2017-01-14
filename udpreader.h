@@ -15,6 +15,7 @@ class UDPReader : public QObject
 public:
     UDPReader(QObject* parent = nullptr);
     int availableData(QByteArray& data);
+    void advertise() const;
     bool open();
     bool isOpen();
     bool close();
@@ -29,6 +30,7 @@ private:
     quint16 m_portNo;
 
     QUdpSocket* m_udpSocket;
+
 
     bool m_isCollecting;
 

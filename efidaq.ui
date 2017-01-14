@@ -14,45 +14,47 @@
    <string>EFIDAQ</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="SetupButton">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>40</y>
-      <width>221</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Test Setup</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="RunTestButton">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>150</y>
-      <width>221</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Run Test</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="RunDiagnosticsButton">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>260</y>
-      <width>221</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Run Diagnostics</string>
-    </property>
-   </widget>
+   <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,1,1">
+    <item>
+     <widget class="QPushButton" name="SetupButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Test Setup</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="RunTestButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Run Test</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="RunDiagnosticsButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Run Diagnostics</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -60,7 +62,7 @@
      <x>0</x>
      <y>0</y>
      <width>305</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

@@ -3,6 +3,7 @@
 #include <QAbstractSocket>
 #include <QUdpSocket>
 #include <QHostAddress>
+#include <QTime>
 
 UDPReader::UDPReader(QObject* parent)
     : QObject(parent)
@@ -25,6 +26,11 @@ int UDPReader::availableData(QByteArray& data)
     return size;
 }
 
+void UDPReader::advertise() const
+{
+
+}
+
 bool UDPReader::open()
 {
     close();
@@ -43,13 +49,9 @@ bool UDPReader::isOpen()
 
 bool UDPReader::close()
 {
-    if (m_isCollecting)
-    {
-        m_isCollecting = false;
-        m_udpSocket->close();
-        return true;
-    }
-    return false;
+    m_isCollecting = false;
+    m_udpSocket->close();
+    return true;
 }
 
 QString UDPReader::getIPAddressString() const

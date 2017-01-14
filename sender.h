@@ -53,12 +53,14 @@
 
 #include <QWidget>
 #include <QTime>
+#include <QHostAddress>
 
 class QDialogButtonBox;
 class QLabel;
 class QPushButton;
 class QTimer;
 class QUdpSocket;
+class QLineEdit;
 
 class Sender : public QWidget
 {
@@ -76,6 +78,8 @@ public:
 
 private slots:
     void startBroadcasting();
+    void stopBroadcasting();
+    void changeAddress();
     void broadcastDatagram();
 
 private:
@@ -83,12 +87,13 @@ private:
     QPushButton *startButton;
     QPushButton *quitButton;
     QDialogButtonBox *buttonBox;
+    QLineEdit* lineEdit;
     QUdpSocket *udpSocket;
     QTimer *timer;
     int messageNo;
 
     QTime m_time;
-
+    QHostAddress m_IPAddress;
 };
 
 #endif

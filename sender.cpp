@@ -49,6 +49,7 @@
 ****************************************************************************/
 
 #include <QtWidgets>
+#include <QLineEdit>
 #include <QtNetwork>
 #include <QtGlobal>
 
@@ -62,6 +63,7 @@ Sender::Sender(QWidget *parent)
 
     startButton = new QPushButton(tr("&Start"));
     quitButton = new QPushButton(tr("&Quit"));
+    lineEdit = new QLineEdit("0.0.0.0");
 
     buttonBox = new QDialogButtonBox;
     buttonBox->addButton(startButton, QDialogButtonBox::ActionRole);
@@ -72,12 +74,14 @@ Sender::Sender(QWidget *parent)
     messageNo = 1;
 
     connect(startButton, SIGNAL(clicked()), this, SLOT(startBroadcasting()));
-    connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(quitButton, SIGNAL(clicked()), this, SLOT(stopBroadcasting()));
+    connect(lineEdit, SIGNAL(editingFinished()), this, SLOT(changeAddress()));
     connect(timer, SIGNAL(timeout()), this, SLOT(broadcastDatagram()));
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(statusLabel);
     mainLayout->addWidget(buttonBox);
+    mainLayout->addWidget(lineEdit);
     setLayout(mainLayout);
 
     setWindowTitle(tr("Broadcast Sender"));
@@ -90,7 +94,23 @@ Sender::Sender(QWidget *parent)
 void Sender::startBroadcasting()
 {
     startButton->setEnabled(false);
-    timer->start(1);
+    timer->start(1000);
+}
+
+void Sender::stopBroadcasting()
+{
+    startButton->setEnabled(true);
+    timer->stop();
+}
+
+void Sender::changeAddress()
+{
+    if (!m_IPAddress.setAddress(lineEdit->text()))
+    {
+        QMessageBox msgbox;
+        msgbox.setText("Invalid Address.");
+        msgbox.exec();
+    }
 }
 
 void Sender::broadcastDatagram()
@@ -102,7 +122,7 @@ void Sender::broadcastDatagram()
                 arg(IAT()).arg(MAP()).
                 arg(TPS()).arg(OIN()).arg(RPM())).toStdString().data());
     udpSocket->writeDatagram(datagram.data(), datagram.size(),
-                             QHostAddress::Broadcast, 50000);
+                             m_IPAddress, 50000);
     ++messageNo;
 }
 
