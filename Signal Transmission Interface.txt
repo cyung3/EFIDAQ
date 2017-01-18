@@ -1,33 +1,42 @@
 Signal Transmission Interface
-	At least 2 bytes sent over Serial
-	First 2 bytes are signal identifiers
-		This should be a 2 digit number (00 to 99)
+	At least 1 byte sent over Serial
+	First byte is signal identifiers
+		This should be a 1 byte number (0 to 255)
 	All further bytes should be reserved for value transmission
 	Signal IDs (as of now):
-		00: Arduino Reset
-		01: Start Sending Data
-		02: Stop Sending Data
-		03: Synchronize Parameter Order (details below)
-		04: Update Arduino's AFR Table
-		05: Update DAQ's AFR Table
-		06: Set Idle Fuel Ratio
-		07: Set Current Fuel Ratio
-		08: Set Reset Fuel Ratio
-		09: Set Desired RPM
+		0: Arduino Reset
+		1: Start Sending Data
+		2: Stop Sending Data
+		3: Synchronize Parameter Order
+		4: Update Arduino's AFR Table
+		5: Update DAQ's AFR Table
+		6: Set Idle Fuel Ratio
+		7: Set Current Fuel Ratio
+		8: Set Reset Fuel Ratio
+		9: Set Desired RPM
 		10: Set Desired O2
 	Synchronized Parameter Order
-		Signal should be in the form "0300010203040506"
+		Signal should be of the following form
+			1st byte should be the signal ID
+			Each subsequent byte is the ID of the given parameter
 			What does this mean?
-				the initial 03 is the signal identifier which identifies this as the command to synchronize the parameter order
-				After that, each set of two digits refers to a given parameter to be transmitted
+				the initial byte (3) is the signal identifier which identifies this as the command to synchronize the parameter order
+				After that, each byte refers to a given parameter to be transmitted
 				By changing the order of these parameter IDs, we can change the order in which these parameters are transmitted over serial
 			Parameter IDs:
-				00: Time in seconds with 4 decimal points of precision
-				01: ECT
-				02: IAT
-				03: MAP
-				04: TPS
-				05: OIN
-				06: RPM
+				0: Time in seconds with 4 decimal points of precision
+				1: ECT
+				2: IAT
+				3: MAP
+				4: TPS
+				5: OIN
+				6: RPM
 			Example:
-				"0301020304050600" would print data in the order ECT, IAT, MAP, TPS, OIN, RPM, Time
+				"31234560" would print data in the order ECT, IAT, MAP, TPS, OIN, RPM, Time
+	Sending/Receiving AFR Table
+		First byte is ID (4 or 5) for sending or receiving
+		Second byte is for number of rows (0 to 255)
+		Third byte is for number of columns (0 to 255)
+		Each subsequent 4 bytes will be the value for the given table slot
+			This means that the first set of 4 bytes will refer to table position (0,0), the second set of 4 bytes will refer to table position (0,1), and so on.
+			Once the first row is filled up, the values start to refer to the second row.
