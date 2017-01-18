@@ -115,6 +115,8 @@ RUNTEST::RUNTEST(MAINRUNTEST* mrtparent, QWidget* parent) :
 
     // Initialize the ByteFilter that will be used to filter out bad input.
     filter.addFilter(QString("[^0123456789.-,+\n]"));
+
+    m_afrtable=nullptr;
 }
 
 // Destructor for the RUNTEST class
@@ -130,6 +132,8 @@ RUNTEST::~RUNTEST()
     delete m_dataRefrTimer;
     delete m_bytebuf;
     delete highlighter;
+    if(m_afrtable!=nullptr)
+        delete m_afrtable;
 
     for (auto it = pw.begin(); it != pw.end();)
     {
@@ -176,7 +180,8 @@ int RUNTEST::saveData()
     else
     {
         QDir dir;
-        QString filename = QFileDialog::getSaveFileName(this, QString("Select a file to save the data to."), dir.currentPath());
+        QString filter= "Worksheet(*.csv);;Text(*.txt);; Excel(*.xml)";
+        QString filename = QFileDialog::getSaveFileName(this, QString("Select a file to save the data to."), dir.currentPath(), filter);
         if (filename.isEmpty())
         {
             return efidaq::CANCELLED;
