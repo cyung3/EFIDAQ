@@ -7,7 +7,7 @@ Signal Transmission Interface
 		0: Arduino Reset
 		1: Start Sending Data
 		2: Stop Sending Data
-		3: 
+		3: Synchronize
 		4: Update Arduino's AFR Table
 		5: Update DAQ's AFR Table
 		6: Set Idle Fuel Ratio
@@ -15,29 +15,21 @@ Signal Transmission Interface
 		8: Set Reset Fuel Ratio
 		9: Set Desired RPM
 		10: Set Desired O2
+		
 	Order of Parameters Sent Over Serial
-		26 bytes
-		1: time
-			4 bytes
-			long
-		2: ECT
-			4 bytes
-			float
-		3: IAT
-			4 bytes
-			float
-		4: MAP
-			4 bytes
-			float
-		5: TPS
-			4 bytes
-			float
-		6: OIN
-			4 bytes
-			float
-		7: RPM
-			2 bytes
-			int
+		36 bytes
+		All Values are 4 bytes long
+
+		time (unsigned long)
+		totalRevolutions (unsigned long)
+		ECT (float)
+		IAT (float)
+		MAP (float)
+		TPS (float)
+		OIN (float)
+		totalPulseTime (float)
+		RPM (signed long)
+
 	Sending/Receiving AFR Table
 		First byte is ID (4 or 5) for sending or receiving
 		Second byte is for number of rows (0 to 255)
