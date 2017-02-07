@@ -7,6 +7,7 @@
 #include "utilities.h"
 #include "afrtable.h"
 #include "mainruntest.h"
+#include "datainterpreter.h"
 
 #include <QTimer>
 #include <QModelIndex>
@@ -271,75 +272,87 @@ void RUNTEST::hitDataTimer()
     {
         // If no bytes are available and there are no bytes waiting to be recorded,
         // then just return because there is no work to be done.
+
+        //ui->DataBrowser->insertPlainText("No Data: "+QString("%1").arg(nBytes)+"\n\n");
         return;
     }
 
-    // Identify the newline and delimiter character being used
-    const char newline = '\n';
-    const char delimiter = ',';
+    //ui->DataBrowser->insertPlainText(QString("%1").arg(nBytes)+"\n\n");
 
-    // Split all the data into individual data points by splitting along the newline character.
-    QList<QByteArray> indivDataPoints = data.split(newline);
-    QList<QByteArray> indivFields;
-    QString line;
+    DataInterpreter interpreter;
+    char* dataAddress = data.data();
+    int numBytesPerMessage = interpreter.getNumBytes();
+    int offset;
+    bool validData;
 
     // Loops through the individual data points and prints them to the screen one at a time.
-    for (int i = 0; i < indivDataPoints.length()-1; i++ )
+    for (offset = 0; offset <= data.length()- numBytesPerMessage; offset = offset+numBytesPerMessage)
     {
-        indivFields = indivDataPoints[i].split(delimiter);
-        line = indivDataPoints[i];
+        // Alignment checking
+        validData = false;
+        while(!validData && offset <= data.length() - numBytesPerMessage)
+        {
+            interpreter.setBytes(&(dataAddress[offset]));
+            if(interpreter.getEnd() == 0x80000000)
+            {
+                validData = true;
+                for(int j = 0; j < interpreter.getNumFields(); j++)
+                {
+                    if(interpreter.getValue(j) < 0)
+                    {
+                        offset++;
+                        validData = false;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                offset++;
+            }
+        }
+        if(offset > data.length()-numBytesPerMessage)
+        {
+            break;
+        }
 
-        // Functional Filter.
-        if (mrtparent->isFilteringByNumFields())
-        {
-            if (indivFields.length() != expectedNumFields)
-            {
-                continue;
-            }
-        }
-        if (mrtparent->isFilteringByContent())
-        {
-            if (line.contains(QRegExp("[^0123456789.-,+\n\r]")))
-            {
-                continue;
-            }
-        }
-        ui->DataBrowser->insertPlainText(line + '\n');
+        ui->DataBrowser->insertPlainText(interpreter.getString() + '\n');
 
         // Appends the xData and yData points
         // Check is necessary to ensure index is within the range of data input.
         for (int i = 0; i < pw.size(); i++)
         {
-            if (pw[i]->getXLabel().second < indivFields.length() && pw[i]->getYLabel().second < indivFields.length())
+            if (pw[i]->getXLabel().second < interpreter.getNumFields() && pw[i]->getYLabel().second < interpreter.getNumFields())
             {
-                QString xstr = QString(indivFields[pw[i]->getXLabel().second]);
-                xstr.remove(QRegExp(QString("[\n\t\r]*")));
-                double xval = xstr.toDouble();
+                double xval = interpreter.getValue(pw[i]->getXLabel().second);
                 m_xData[i].append(xval);
+                //ui->DataBrowser->insertPlainText("\n\n"+QString("%1").arg(xval)+"\n\n");
 
-                QString ystr = QString(indivFields[pw[i]->getYLabel().second]);
-                ystr.remove(QRegExp(QString("[\n\t\r]*")));
-                double yval = ystr.toDouble();
+                double yval = interpreter.getValue(pw[i]->getYLabel().second);
                 m_yData[i].append(yval);
+                //ui->DataBrowser->insertPlainText("\n\n"+QString("%1").arg(yval)+"\n\n");
             }
         }
         m_ndp++;
 
     }
 
-
-    // If the last entry in the data point list is empty, then the data gathered was a complete point.
-    // Otherwise, store the excess data in a buffer to be prepended before the next read from the
-    // available serial data.
-    if (!indivDataPoints.isEmpty())
+    if(offset == data.length()- numBytesPerMessage + 1)
     {
-        bool isCompleteMsg = indivDataPoints[indivDataPoints.length() - 1].length() == 0;
-        if (!isCompleteMsg)
-        {
-            m_bytebuf->append(indivDataPoints[indivDataPoints.length() - 1]);
-        }
+        m_bytebuf->append(&(dataAddress[offset - 1]), data.length()-(offset-1));
     }
-    else return;
+    else if (data.length() - numBytesPerMessage + 1 < offset && offset < data.length())
+    {
+        m_bytebuf->append(&(dataAddress[offset]), data.length() - offset);
+    }
+    else
+    {
+        //This should only happen if data.length() = offset, in which case, there shoul be nothing to do, else there
+        //is an error.
+
+        //ui->DataBrowser->insertPlainText("Append Error: Bytes = "+QString("%1").arg(data.length())+", Offset = "+QString("%1").arg(offset)+ "\n");
+    }
+
 
     // Update the LCD with the total sample number
     ui->NumDPlcd->display((int) m_ndp);
