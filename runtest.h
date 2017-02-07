@@ -8,6 +8,7 @@
 
 #include "tmodels.h"
 #include "utilities.h"
+#include "datainterpreter.h"
 
 namespace Ui {
 class RUNTEST;

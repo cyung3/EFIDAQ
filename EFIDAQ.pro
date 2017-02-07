@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     plotwindow.cpp \
     qformdialog.cpp \
     udpreader.cpp \
-    sender.cpp
+    sender.cpp \
+    datainterpreter.cpp
 
 HEADERS  += efidaq.h \
     testsetup.h \
@@ -42,7 +43,8 @@ HEADERS  += efidaq.h \
     plotwindow.h \
     qformdialog.h \
     udpreader.h \
-    sender.h
+    sender.h \
+    datainterpreter.h
 
 FORMS    += efidaq.ui \
     testsetup.ui \
