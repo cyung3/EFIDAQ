@@ -181,24 +181,50 @@ int RUNTEST::saveData()
     else
     {
         QDir dir;
-        QString filter= "Worksheet(*.csv);;Text(*.txt);; Excel(*.xml)";
-        QString filename = QFileDialog::getSaveFileName(this, QString("Select a file to save the data to."), dir.currentPath(), filter);
+        QString extension;
+        QString filter= "Worksheet(*.csv);;Text(*.txt);;BitFile(*.bit)";
+        QString filename = QFileDialog::getSaveFileName(this, QString("Select a file to save the data to."),
+                                                        dir.currentPath(), filter, &extension);
         if (filename.isEmpty())
         {
             return efidaq::CANCELLED;
         }
-        QByteArray data;
-        data.append(ui->DataBrowser->toPlainText());
         QFile file(filename, this);
         if (!file.open(QFileDevice::WriteOnly))
         {
             return efidaq::OPEN_FILE_FAILED;
         }
-        if (file.write(data) == -1)
+        if (extension == "BitFile(*.bit)")
         {
-            file.close();
-            return efidaq::WRITE_FILE_FAILED;
+            if (file.write(buffer) == -1)
+            {
+                file.close();
+                return efidaq::WRITE_FILE_FAILED;
+            }
         }
+        else
+        {
+            WriteInterpreter writer;
+            QString fileContents("");
+            long long ret;
+            char* bufferAddress = buffer.data();
+            int i;
+            //ui->DataBrowser->insertPlainText(QString("%1").arg(buffer.length())+"\n");
+            for(i = 0; i < buffer.length()/writer.getNumBytes(); i++)
+            {
+                writer.setBytes(&(bufferAddress[i*writer.getNumBytes()]));
+                fileContents += writer.getString() + "\n";
+            }
+            //ui->DataBrowser->insertPlainText(fileContents);
+            QTextStream out(&file);
+            out << fileContents;
+//            if ((ret = file.write((const char*)fileContents.data())) == -1)
+//            {
+//                file.close();
+//                return efidaq::WRITE_FILE_FAILED;
+//            }
+        }
+
         file.close();
         return efidaq::SUCCESS;
     }
@@ -293,9 +319,10 @@ void RUNTEST::hitDataTimer()
         while(!validData && offset <= data.length() - numBytesPerMessage)
         {
             interpreter.setBytes(&(dataAddress[offset]));
-            if(interpreter.getEnd() == 0x80000000)
+            if(interpreter.getEnd() == 0x80000000 && interpreter.getStart() == 0x80000001)
             {
                 validData = true;
+#if 0
                 for(int j = 0; j < interpreter.getNumFields(); j++)
                 {
                     if(interpreter.getValue(j) < 0)
@@ -305,6 +332,7 @@ void RUNTEST::hitDataTimer()
                         break;
                     }
                 }
+#endif
             }
             else
             {
@@ -316,7 +344,9 @@ void RUNTEST::hitDataTimer()
             break;
         }
 
-        ui->DataBrowser->insertPlainText(interpreter.getString() + '\n');
+        //ui->DataBrowser->insertPlainText(interpreter.getString() + '\n');
+        buffer.append(&(((char*)interpreter.getBytes())[4]) , interpreter.getNumBytes()-8);
+
 
         // Appends the xData and yData points
         // Check is necessary to ensure index is within the range of data input.
@@ -336,6 +366,8 @@ void RUNTEST::hitDataTimer()
         m_ndp++;
 
     }
+
+    //ui->DataBrowser->insertPlainText("Append Info: Bytes = "+QString("%1").arg(data.length())+", Offset = "+QString("%1").arg(offset)+ "\n");
 
     if(offset == data.length()- numBytesPerMessage + 1)
     {

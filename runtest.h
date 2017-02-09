@@ -78,6 +78,8 @@ private:
     QVector<QVector<double>> m_yData;
     std::pair<QString, int> m_xLabel;
     std::pair<QString, int> m_yLabel;
+
+    QByteArray buffer;
 };
 
 #endif // RUNTEST_H
