@@ -24,6 +24,7 @@ public:
     bool isFilteringByContent() const;
     int collectionMethod() const;
     bool isShowingValues() const;
+    bool isAutoScrolling() const;
 
 private slots:
     bool saveData();

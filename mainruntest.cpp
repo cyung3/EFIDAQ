@@ -266,3 +266,8 @@ bool MAINRUNTEST::isShowingValues() const
 {
     return ui->actionShow_Values->isChecked();
 }
+
+bool MAINRUNTEST::isAutoScrolling() const
+{
+    return ui->actionAutoScroll->isChecked();
+}

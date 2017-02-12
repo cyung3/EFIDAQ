@@ -52,6 +52,7 @@
     <addaction name="menuFilter"/>
     <addaction name="menuCollection_Protocol"/>
     <addaction name="actionShow_Values"/>
+    <addaction name="actionAutoScroll"/>
    </widget>
    <widget class="QMenu" name="menuSignals">
     <property name="title">
@@ -217,6 +218,17 @@
    </property>
    <property name="text">
     <string>Show Values</string>
+   </property>
+  </action>
+  <action name="actionAutoScroll">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>AutoScroll</string>
    </property>
   </action>
  </widget>

@@ -249,6 +249,7 @@ int RUNTEST::clearData()
         if (b == a)
         {
             ui->DataBrowser->clear();
+            buffer.clear();
             m_ndp = 0;
             ui->NumDPlcd->display((int) m_ndp);
             ui->StartDCButton->setText("Start Data Collection");
@@ -344,7 +345,10 @@ void RUNTEST::hitDataTimer()
             break;
         }
 
-        //ui->DataBrowser->insertPlainText(interpreter.getString() + '\n');
+        if (mrtparent->isShowingValues())
+        {
+            ui->DataBrowser->insertPlainText(interpreter.getString() + '\n');
+        }
         buffer.append(&(((char*)interpreter.getBytes())[4]) , interpreter.getNumBytes()-8);
 
 
@@ -546,7 +550,7 @@ void RUNTEST::handlePortNoEditFinished()
 void RUNTEST::handleStreamRefrTimeout()
 {
     // Only autoscrolls if set to show new values.
-    if (mrtparent->isShowingValues())
+    if (mrtparent->isAutoScrolling())
     {
         ui->DataBrowser->verticalScrollBar()->setValue(ui->DataBrowser->verticalScrollBar()->maximum());
     }
