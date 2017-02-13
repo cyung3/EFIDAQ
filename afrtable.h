@@ -2,6 +2,7 @@
 #define AFRTABLE_H
 
 #include <QMainWindow>
+#include <serialreader.h>
 
 namespace Ui {
 class AFRTABLE;

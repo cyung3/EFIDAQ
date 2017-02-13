@@ -26,11 +26,6 @@ AFR_TABLE_MODEL::AFR_TABLE_MODEL(QObject *parent, QString filename)
     }
 }
 
-AFR_TABLE_MODEL::~AFR_TABLE_MODEL()
-{
-
-}
-
 // Determines the number of rows in the table.
 int AFR_TABLE_MODEL::rowCount(const QModelIndex & /*parent*/) const
 {
@@ -151,6 +146,8 @@ bool AFR_TABLE_MODEL::loadTable(QString csvfile)
     }
     return false;
 }
+
+
 
 //===================================//
 // LIST_CHOICES_MODEL IMPLEMENTATION //

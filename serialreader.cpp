@@ -88,6 +88,16 @@ unsigned long long SERIALREADER::availableData(QByteArray& data)
     return nBytes;
 }
 
+// Write data to the serial port.
+unsigned long long SERIALREADER::write(const QByteArray& data)
+{
+    if (m_serialPort->isOpen())
+    {
+        return m_serialPort->write(data);
+    }
+    return 0 ;
+}
+
 // Attempts to select a serial port to use.
 QString SERIALREADER::selectPort()
 {

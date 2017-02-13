@@ -16,6 +16,7 @@ public:
     bool close();
     void flush();
     unsigned long long availableData(QByteArray& data);
+    unsigned long long write(const QByteArray& data);
     QString selectPort();
     QString portName() const;
 private:

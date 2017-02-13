@@ -15,7 +15,6 @@ class AFR_TABLE_MODEL : public QAbstractTableModel
 public:
     AFR_TABLE_MODEL(QObject *parent);
     AFR_TABLE_MODEL(QObject *parent, QString filename);
-    ~AFR_TABLE_MODEL();
 
     // Determines the number of rows in the table.
     int rowCount(const QModelIndex &parent = QModelIndex()) const ;
@@ -36,6 +35,9 @@ public:
     Qt::ItemFlags flags(const QModelIndex & index) const ;
 
     bool loadTable(QString filename);
+
+    // Returns the data stored in the table as a QVector of Qvectors of QStrings
+    QVector<QVector<QString>> getTable() const;
 private:
     // holds text entered into the table cells
     QList<QList<QString>> m_gridData;
