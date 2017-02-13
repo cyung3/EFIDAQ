@@ -117,6 +117,9 @@ RUNTEST::RUNTEST(MAINRUNTEST* mrtparent, QWidget* parent) :
     filter.addFilter(QString("[^0123456789.-,+\n]"));
 
     m_afrtable=nullptr;
+
+    dataInserted=false; //To check for clearing the datastream if empty
+    changeSinceLastSave=false;
 }
 
 // Destructor for the RUNTEST class
@@ -199,6 +202,7 @@ int RUNTEST::saveData()
             return efidaq::WRITE_FILE_FAILED;
         }
         file.close();
+        changeSinceLastSave=false;
         return efidaq::SUCCESS;
     }
 }
@@ -210,6 +214,10 @@ int RUNTEST::clearData()
     if (m_dataRefrTimer->isActive())
     {
         return efidaq::FAILED_CURRENTLY_COLLECTING;
+    }
+    else if(dataInserted==false)
+    {
+        return efidaq::FAILED_NO_DATA_TO_CLEAR;
     }
     else
     {
@@ -304,7 +312,11 @@ void RUNTEST::hitDataTimer()
                 continue;
             }
         }
-        ui->DataBrowser->insertPlainText(line + '\n');
+        if(!dataInserted)
+            dataInserted=true;
+        if(!changeSinceLastSave)
+            changeSinceLastSave=true;
+        ui->DataBrowser->insertPlainText(line + '\n'); //ASSUMPTION, this adds data from the arduino to the data stream.
 
         // Appends the xData and yData points
         // Check is necessary to ensure index is within the range of data input.
@@ -558,4 +570,9 @@ void RUNTEST::yItemChanged(QModelIndex yindex)
 bool RUNTEST::isCollectingData() const
 {
     return m_dataRefrTimer->isActive();
+}
+
+bool RUNTEST::recentChange() const
+{
+    return changeSinceLastSave;
 }

@@ -102,6 +102,8 @@ void MAINRUNTEST::dataLockChanged(bool checked)
 
 void MAINRUNTEST::closeEvent(QCloseEvent *event)
 {
+    if(rt->recentChange())
+    {
     QMessageBox msgbox;
     msgbox.setText("Would you like to save the current data before exiting?");
     QAbstractButton* a = msgbox.addButton(QMessageBox::Yes);
@@ -145,6 +147,8 @@ void MAINRUNTEST::closeEvent(QCloseEvent *event)
     {
         event->ignore();
     }
+    }
+    event->accept();
 }
 
 void MAINRUNTEST::handleParametersEditTriggered()

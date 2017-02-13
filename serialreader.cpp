@@ -141,6 +141,49 @@ void SERIALREADER::handleReadyRead()
     m_data->append(m_serialPort->readAll());
 }
 
+//Send Data to Arduino -TODO How to calculate/where to receive the data to send, just add on to output
+bool SERIALREADER::sendData(int situation) const
+{
+    QByteArray output;
+    output+=situation;
+    switch(situation)
+    {
+    case efidaq::ARDUINO_RESET:
+        break;
+    case efidaq::START_SENDING_DATA:
+        break;
+    case efidaq::STOP_SENDING_DATA:
+        break;
+    case efidaq::SYNCHRONIZE_PARAMETER_ORDER:
+        break;
+    case efidaq::UPDATE_AFR_TABLE:
+        break;
+    case efidaq::UPDATE_DAQ_AFR_TABLE:
+        break;
+    case efidaq::SET_IFR:
+        //output+=
+        break;
+    case efidaq::SET_CFR:
+        //output+=
+        break;
+    case efidaq::SET_RFR:
+        //output+=
+        break;
+    case efidaq::SET_DRPM:
+        //output+=
+        break;
+    case efidaq::SET_D02:
+        //output+=
+        break;
+    default:
+        return false;
+    break;
+    }
+    m_serialPort->write(output);
+    m_serialPort->flush();
+    return true;
+}
+
 // Handles errors
 void SERIALREADER::handleError(QSerialPort::SerialPortError error)
 {

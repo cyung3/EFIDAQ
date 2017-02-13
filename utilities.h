@@ -15,10 +15,26 @@ const int CANCELLED = 1;
 const int FAILED_CURRENTLY_COLLECTING = 2;
 const int OPEN_FILE_FAILED = 3;
 const int WRITE_FILE_FAILED = 4;
+const int FAILED_NO_DATA_TO_CLEAR=5;
 
 const int DEFAULT_BAUD_RATE = 57600;
 const int COLLECTION_BY_SERIAL = 0;
 const int COLLECTION_BY_UDP = 1;
+
+//Corresponding Signal Values
+const int ARDUINO_RESET=0;
+const int START_SENDING_DATA=1;
+const int STOP_SENDING_DATA=2;
+const int SYNCHRONIZE_PARAMETER_ORDER=3;
+const int UPDATE_AFR_TABLE=4;
+const int UPDATE_DAQ_AFR_TABLE=5;
+const int SET_IFR=6;
+const int SET_CFR=7;
+const int SET_RFR=8;
+const int SET_DRPM=9;
+const int SET_D02=10;
+
+
 
 const int DEFAULT_MAX_PLOTTED_POINTS = 100;
 const int DEFAULT_FRAME_RATE = 30;

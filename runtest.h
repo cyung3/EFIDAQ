@@ -33,6 +33,7 @@ public:
     void setDataLocked(bool yes = true);
     void stopPlotting(PlotWindow* sender);
     bool isCollectingData() const;
+    bool recentChange() const;
 
 public slots:
     void hitDataTimer();
@@ -72,6 +73,8 @@ private:
     ByteFilter filter;
 
     MAINRUNTEST* mrtparent;
+    bool dataInserted; //To test for changes in data stream for cleraing purposes
+    bool changeSinceLastSave; //For preventing saving prompt when unnecessary
 
     QVector<QVector<double>> m_xData;
     QVector<QVector<double>> m_yData;

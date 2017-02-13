@@ -18,6 +18,7 @@ public:
     unsigned long long availableData(QByteArray& data);
     QString selectPort();
     QString portName() const;
+    bool SERIALREADER::sendData(int situation) const;
 private:
     QByteArray* m_data;
     QSerialPort* m_serialPort;

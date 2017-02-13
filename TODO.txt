@@ -15,16 +15,16 @@ IN PROGRESS 1) Make button for opening the AFR Table during testing open a new w
      to find a way to get rid of the bad bytes before they are printed to the screen.
 5) Need to make input filter toggle-able. This is the filter that only accepts input that has
      the correct number of fields.
-6) Need to make it so that it only prompts the user to save before exiting if the data has been changed at all
+Basically Done 6) Need to make it so that it only prompts the user to save before exiting if the data has been changed at all
     since the last save.
-7) Need to make it so that clearing the data stream when it is empty does nothing.
-8) Need to specify the file types it can save as when saving. ex: *.csv, *.txt etc...
+Basically Done 7) Need to make it so that clearing the data stream when it is empty does nothing.
+In Progress 8) Need to specify the file types it can save as when saving. ex: *.csv, *.txt etc...
 9) When the data stream is unlocked and clicked at all, it needs to know that it needs to
     set the cursor back to the very bottom before writing any more data to it otherwise the
     data will be written to the wrong place.
 IN PROGRESS 10) Need to implement a menu option that has a full list of signals that can be sent to the controller.
 11) Need the ability to view all the parameters stored on the Arduino. This should be in a window.
-12) Need to be able to close Air to Fuel Ratio Table upon Runtest window closing.
+COMPLETED 12) Automaticaly close Air to Fuel Ratio Table upon Runtest window closing.
 13) If the user has their cursor on a plot it should display the plot coordinates of the point the cursor is pointing to.
 14) Need to make the WrappingQVector class automatically sort when data is inserted. This may improve
     performance for plotting because the QCustomPlot class internally sorts the data every time new data is added.
