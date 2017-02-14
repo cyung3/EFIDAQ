@@ -1,11 +1,13 @@
 #include "serialreader.h"
 #include "utilities.h"
+#include "tmodels.h"
 
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QMessageBox>
 #include <QList>
 #include <QPushButton>
+#include <QTextStream>
 
 SERIALREADER::SERIALREADER(QObject* parent)
     :QObject(parent)
@@ -182,6 +184,44 @@ bool SERIALREADER::sendData(int situation) const
     m_serialPort->write(output);
     m_serialPort->flush();
     return true;
+}
+
+bool SERIALREADER::updateArduinoTable() const
+{
+    QFile inputFile(efidaq::DEFAULT_AFR_TABLE_FILEPATH);
+    inputFile.open(QIODevice::ReadOnly);
+
+    // Check to make sure the file was opened properly
+    if (inputFile.isOpen())
+    {
+        const QChar delimiter = ',';
+        const QChar newline = '\n';
+        const QChar spaces = ' ';
+
+        // Possibly need to check if input stream was created successfully?
+        QTextStream in(&inputFile);
+
+        // Read in all the bytes from the .csv file
+        QString allText = in.readAll();
+
+        allText.remove(delimiter, Qt::CaseInsensitive);
+        allText.remove(newline, Qt::CaseInsensitive);
+        allText.remove(spaces, Qt::CaseInsensitive);
+
+        m_serialPort->write("41036");
+        QByteArray output;
+        output+=allText;
+        m_serialPort->write(output);
+        m_serialPort->flush();
+
+        // Perform resource cleanup
+        inputFile.close();
+
+        // Return true on success
+        return true;
+    }
+    // Return false on failure to open file
+    return false;
 }
 
 // Handles errors

@@ -19,6 +19,7 @@ public:
     QString selectPort();
     QString portName() const;
     bool SERIALREADER::sendData(int situation) const;
+    bool SERIALREADER::updateArduinoTable() const;
 private:
     QByteArray* m_data;
     QSerialPort* m_serialPort;
