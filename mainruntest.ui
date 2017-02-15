@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>1150</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -72,6 +72,11 @@
      <addaction name="actionMAX_SAMPLE_RATE"/>
      <addaction name="actionCOLD_START_VALUE"/>
      <addaction name="actionCUTOFF_RPM"/>
+     <addaction name="actionIDLE_FUEL_RATIO"/>
+     <addaction name="actionCURRENT_FUEL_RATIO"/>
+     <addaction name="actionRESET_FUEL_RATIO"/>
+     <addaction name="actionDESIRED_RPM"/>
+     <addaction name="actionDESIRED_O2"/>
     </widget>
     <addaction name="actionRESET"/>
     <addaction name="menuSYNCHRONIZE"/>
@@ -217,6 +222,31 @@
    </property>
    <property name="text">
     <string>Show Values</string>
+   </property>
+  </action>
+  <action name="actionIDLE_FUEL_RATIO">
+   <property name="text">
+    <string>IDLE_FUEL_RATIO</string>
+   </property>
+  </action>
+  <action name="actionCURRENT_FUEL_RATIO">
+   <property name="text">
+    <string>CURRENT_FUEL_RATIO</string>
+   </property>
+  </action>
+  <action name="actionRESET_FUEL_RATIO">
+   <property name="text">
+    <string>RESET_FUEL_RATIO</string>
+   </property>
+  </action>
+  <action name="actionDESIRED_RPM">
+   <property name="text">
+    <string>DESIRED_RPM</string>
+   </property>
+  </action>
+  <action name="actionDESIRED_O2">
+   <property name="text">
+    <string>DESIRED_O2</string>
    </property>
   </action>
  </widget>

@@ -30,6 +30,11 @@ private slots:
     bool clearData();
     void dataLockChanged(bool checked);
     void handleParametersEditTriggered();
+    void handleIdleFuelRatioSetTriggered();
+    void handleCurrentFuelRatioSetTriggered();
+    void handleResetFuelRatioTriggered();
+    void handleDesiredRPMSetTriggered();
+    void handleDesiredO2SetTriggered();
     void handleProtocolSerialBlocksTriggered(bool);
     void handleProtocolUDPPacketsTriggered(bool);
 

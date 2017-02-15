@@ -43,6 +43,13 @@ MAINRUNTEST::MAINRUNTEST(QWidget *parent) :
     // Connect the collection protocol menu actions to their handler functions.
     connect(ui->actionProtocolSerialBlocks, SIGNAL(triggered(bool)), SLOT(handleProtocolSerialBlocksTriggered(bool)));
     connect(ui->actionProtocolUDP_Packets, SIGNAL(triggered(bool)), SLOT(handleProtocolUDPPacketsTriggered(bool)));
+
+    //Connect setting values to Arduino to corresponding options in the mainruntest window
+    connect(ui->actionIDLE_FUEL_RATIO, SIGNAL(triggered()), SLOT(handleIdleFuelRatioSetTriggered()));
+    connect(ui->actionCURRENT_FUEL_RATIO, SIGNAL(triggered()), SLOT(handleCurrentFuelRatioSetTriggered()));
+    connect(ui->actionRESET_FUEL_RATIO, SIGNAL(triggered()), SLOT(handleResetFuelRatioTriggered()));
+    connect(ui->actionDESIRED_RPM, SIGNAL(triggered()), SLOT(handleDesiredRPMSetTriggered()));
+    connect(ui->actionDESIRED_O2, SIGNAL(triggered()), SLOT(handleDesiredO2SetTriggered()));
 }
 
 MAINRUNTEST::~MAINRUNTEST()
@@ -166,6 +173,34 @@ void MAINRUNTEST::handleParametersEditTriggered()
         pform2.addPair(*it);
     }
     pform2.exec();
+}
+
+void MAINRUNTEST::handleIdleFuelRatioSetTriggered()
+{
+    QFormDialog pform(this);
+    pform.addPair(QString("Desired Idle Fuel Ratio"), QString("b"));
+    pform.exec();
+    QSet<std::pair<QString, QString>> results = pform.getPairs();
+}
+
+void MAINRUNTEST::handleCurrentFuelRatioSetTriggered()
+{
+
+}
+
+void MAINRUNTEST::handleResetFuelRatioTriggered()
+{
+
+}
+
+void MAINRUNTEST::handleDesiredRPMSetTriggered()
+{
+
+}
+
+void MAINRUNTEST::handleDesiredO2SetTriggered()
+{
+
 }
 
 void MAINRUNTEST::resizeEvent(QResizeEvent* event)

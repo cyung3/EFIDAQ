@@ -204,10 +204,12 @@ bool SERIALREADER::updateArduinoTable() const
         // Read in all the bytes from the .csv file
         QString allText = in.readAll();
 
+        //Removing unnecessary characters to be sent to Arduino
         allText.remove(delimiter, Qt::CaseInsensitive);
         allText.remove(newline, Qt::CaseInsensitive);
         allText.remove(spaces, Qt::CaseInsensitive);
 
+        //Code for Arduino's AFR Table, 4 for Sending, 10 for Rows, 36 for columns
         m_serialPort->write("41036");
         QByteArray output;
         output+=allText;
